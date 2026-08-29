@@ -37,6 +37,10 @@ import {
   Box,
   Cpu,
   Building,
+  Sparkles,
+  Bot,
+  Activity,
+  HeartPulse,
 } from 'lucide-react';
 import { sound } from '@/lib/audio';
 import { fetchThingSpeakData } from '@/services/thingspeak';
@@ -57,6 +61,24 @@ import {
 import { ColdStorageIntelligence } from '@/components/ColdStorageIntelligence';
 import { LiveMandiBoard } from '@/components/LiveMandiBoard';
 import { Footer } from '@/components/Footer';
+
+const SAMPLE_LEAF_IMAGES = [
+  {
+    name: '🌿 Sample 1: Tomato Early Blight',
+    crop: 'Tomato',
+    url: 'https://images.unsplash.com/photo-1592417817098-8f3d6eb22509?q=80&w=600&auto=format&fit=crop',
+  },
+  {
+    name: '🍃 Sample 2: Tomato Yellow Leaf Curl',
+    crop: 'Tomato',
+    url: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?q=80&w=600&auto=format&fit=crop',
+  },
+  {
+    name: '🍅 Sample 3: Fruit Surface Rot',
+    crop: 'Tomato Fruit',
+    url: 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?q=80&w=600&auto=format&fit=crop',
+  },
+];
 
 export default function ComprehensiveAgriculturalDashboard() {
   const [activeTab, setActiveTab] = useState<'Farmer' | 'Mandi' | 'Merchant' | 'Driver' | 'Voice' | 'CropDoctor'>('Farmer');
@@ -91,6 +113,7 @@ export default function ComprehensiveAgriculturalDashboard() {
   const [cropImage, setCropImage] = useState<string | null>(null);
   const [diagnosis, setDiagnosis] = useState<DiagnosisData | null>(null);
   const [diagLoading, setDiagLoading] = useState<boolean>(false);
+  const [doctorVoiceLang, setDoctorVoiceLang] = useState<VoiceLanguage>('te');
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Route
@@ -202,17 +225,37 @@ export default function ComprehensiveAgriculturalDashboard() {
     r.readAsDataURL(file);
   };
 
+  const handleSelectSample = (sampleUrl: string) => {
+    sound.playClick(1000);
+    setCropImage(sampleUrl);
+    setDiagnosis(null);
+  };
+
   const handleAnalyze = async () => {
     if (!cropImage) return;
+    sound.playClick(1100);
     setDiagLoading(true);
     try {
       const d = await diagnoseCropImage(cropImage);
       setDiagnosis(d);
     } catch {
-      // Fallback
+      // Handled in service with robust fallback
     } finally {
       setDiagLoading(false);
     }
+  };
+
+  const handlePlayDoctorAudio = () => {
+    if (!diagnosis) return;
+    sound.playClick(1000);
+    let text = diagnosis.farmer_voice_telugu;
+    if (doctorVoiceLang === 'hi') text = diagnosis.farmer_voice_hindi;
+    if (doctorVoiceLang === 'en') text = diagnosis.farmer_voice_english;
+
+    setIsSpeaking(true);
+    speakFarmerAudio(text, doctorVoiceLang, () => {
+      setIsSpeaking(false);
+    });
   };
 
   const isHot = boxThermalState === 'HOT_WARNING';
@@ -833,37 +876,80 @@ export default function ComprehensiveAgriculturalDashboard() {
         )}
 
         {/* ======================================================== */}
-        {/* VIEW 5: CROP DOCTOR                                      */}
+        {/* VIEW 5: CROP DOCTOR (GEMINI AI PLANT PATHOLOGIST)        */}
         {/* ======================================================== */}
         {activeTab === 'CropDoctor' && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-              <div className="md:col-span-5 space-y-4">
+          <div className="space-y-8">
+            
+            {/* HEADER */}
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#166534] text-white">
+                  Gemini Vision Pathology
+                </span>
+                <span className="text-xs font-mono text-stone-600 font-bold">Multimodal Crop Disease Scanner</span>
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight mt-1">
+                AI Crop Doctor: Damage Quantification &amp; Curative Prescriptions
+              </h3>
+              <p className="text-xs text-stone-500 mt-1">
+                Upload a plant or leaf image to calculate exact tissue damage %, diagnose the pathology, and receive chemical + organic remedies.
+              </p>
+            </div>
+
+            {/* PRE-LOADED SAMPLES PICKER */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-bold text-stone-600 mr-2">Or test sample leaves:</span>
+              {SAMPLE_LEAF_IMAGES.map((sample) => (
+                <button
+                  key={sample.name}
+                  onClick={() => handleSelectSample(sample.url)}
+                  className="px-3.5 py-1.5 rounded-xl bg-white/95 backdrop-blur-md border border-stone-300 hover:border-emerald-600 text-xs font-semibold text-stone-800 transition-all shadow-xs cursor-pointer"
+                >
+                  {sample.name}
+                </button>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              
+              {/* LEFT COLUMN: UPLOAD & PREVIEW (5 Cols) */}
+              <div className="lg:col-span-5 space-y-4">
                 <input ref={fileRef} type="file" accept="image/*" onChange={handleUpload} className="hidden" />
 
                 {!cropImage ? (
                   <div
                     onClick={() => fileRef.current?.click()}
-                    className="border-2 border-dashed border-white/40 hover:border-emerald-500 rounded-3xl p-10 flex flex-col items-center justify-center text-center cursor-pointer transition-colors bg-white/95 backdrop-blur-md min-h-[260px] shadow-lg"
+                    className="border-2 border-dashed border-emerald-600/40 hover:border-emerald-600 rounded-3xl p-10 flex flex-col items-center justify-center text-center cursor-pointer transition-colors bg-white/95 backdrop-blur-md min-h-[300px] shadow-lg group"
                   >
-                    <Upload className="w-8 h-8 text-stone-400 mb-2" />
-                    <h4 className="text-sm font-bold text-stone-900">Upload 3MP Camera Leaf Image</h4>
-                    <p className="text-xs text-stone-500 mt-1">From camera or phone</p>
+                    <div className="w-16 h-16 rounded-full bg-emerald-50 text-[#166534] flex items-center justify-center group-hover:scale-110 transition-transform mb-3">
+                      <Upload className="w-8 h-8" />
+                    </div>
+                    <h4 className="text-sm font-bold text-stone-900">Upload Plant / Leaf Photo</h4>
+                    <p className="text-xs text-stone-500 mt-1">Click to browse or drag image from phone/camera</p>
                   </div>
                 ) : (
-                  <div className="p-4 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg space-y-3">
-                    <img src={cropImage} alt="Crop sample" className="w-full max-h-56 object-contain rounded-xl bg-stone-900" />
+                  <div className="p-5 rounded-3xl bg-white/95 backdrop-blur-md border border-stone-200 shadow-lg space-y-4">
+                    <div className="relative aspect-video rounded-2xl overflow-hidden bg-stone-900 border border-stone-200">
+                      <img src={cropImage} alt="Crop sample" className="w-full h-full object-cover" />
+                      <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-mono text-white">
+                        IoT Vision Node Ready
+                      </div>
+                    </div>
+
                     <div className="flex gap-2">
                       <button
                         onClick={handleAnalyze}
                         disabled={diagLoading}
-                        className="flex-1 py-2.5 rounded-xl bg-[#166534] hover:bg-[#15803d] text-white text-xs font-bold cursor-pointer"
+                        className="flex-1 py-3 rounded-2xl bg-[#166534] hover:bg-[#15803d] text-white text-xs font-extrabold cursor-pointer transition-all shadow-md flex items-center justify-center gap-2"
                       >
-                        {diagLoading ? 'Calculating Damage %...' : 'Analyze with Gemini AI'}
+                        <Sparkles className={`w-4 h-4 ${diagLoading ? 'animate-spin' : ''}`} />
+                        <span>{diagLoading ? 'Gemini AI Analyzing Damage %...' : 'Scan & Diagnose with Gemini AI'}</span>
                       </button>
+
                       <button
                         onClick={() => { setCropImage(null); setDiagnosis(null); }}
-                        className="px-3 py-2.5 rounded-xl border border-stone-300 hover:bg-stone-100 text-stone-700 cursor-pointer"
+                        className="px-4 py-3 rounded-2xl border border-stone-300 hover:bg-stone-100 text-stone-700 cursor-pointer transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -872,44 +958,182 @@ export default function ComprehensiveAgriculturalDashboard() {
                 )}
               </div>
 
-              <div className="md:col-span-7">
+              {/* RIGHT COLUMN: DIAGNOSIS & ACTIONABLE TREATMENT PROTOCOL (7 Cols) */}
+              <div className="lg:col-span-7">
                 {diagnosis ? (
-                  <div className="p-6 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg space-y-4">
-                    <div className="flex justify-between items-center border-b border-stone-200 pb-3">
+                  <div className="p-6 sm:p-8 rounded-3xl bg-white/95 backdrop-blur-md border-2 border-emerald-600/50 shadow-xl space-y-6">
+                    
+                    {/* Disease Header */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-stone-200">
                       <div>
-                        <span className="text-xs font-bold text-emerald-800 uppercase">IDENTIFIED CROP DISEASE</span>
-                        <h3 className="text-lg font-bold text-stone-900">{diagnosis.disease_name}</h3>
+                        <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-800 block">
+                          DIAGNOSED BY GEMINI VISION • {diagnosis.confidence} CONFIDENCE
+                        </span>
+                        <h3 className="text-xl sm:text-2xl font-extrabold text-stone-900 mt-0.5">
+                          {diagnosis.disease_name}
+                        </h3>
+                        <span className="text-xs text-stone-500 font-medium">{diagnosis.crop_type}</span>
                       </div>
-                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                        {diagnosis.severity} Severity
-                      </span>
+
+                      <div className="flex items-center gap-2">
+                        <span className={`px-3 py-1.5 rounded-full text-xs font-extrabold ${
+                          diagnosis.severity === 'Severe'
+                            ? 'bg-red-100 text-red-800 border border-red-300'
+                            : diagnosis.severity === 'Moderate'
+                            ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                            : 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                        }`}>
+                          {diagnosis.severity} Severity
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="p-4 rounded-xl bg-stone-50 border border-stone-200 space-y-2">
-                      <div className="flex justify-between text-xs font-bold">
-                        <span className="text-stone-900">LEAF DAMAGE SURFACE:</span>
-                        <span className="text-amber-800">{diagnosis.leaf_damage_percentage}% DESTROYED / {diagnosis.healthy_tissue_percentage}% INTACT</span>
+                    {/* 1. LEVEL OF DAMAGE GAUGE */}
+                    <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-2.5">
+                      <div className="flex justify-between items-center text-xs font-bold">
+                        <span className="text-stone-900 flex items-center gap-1.5">
+                          <Activity className="w-4 h-4 text-amber-600" />
+                          <span>LEVEL OF DAMAGE:</span>
+                        </span>
+                        <span className="text-amber-800 font-mono font-extrabold">
+                          {diagnosis.leaf_damage_percentage}% TISSUE DESTROYED / {diagnosis.healthy_tissue_percentage}% INTACT
+                        </span>
                       </div>
-                      
+
                       <div className="w-full h-3.5 rounded-full bg-emerald-100 overflow-hidden flex">
-                        <div className="bg-amber-600 h-full" style={{ width: `${diagnosis.leaf_damage_percentage}%` }} />
-                        <div className="bg-[#166534] h-full" style={{ width: `${diagnosis.healthy_tissue_percentage}%` }} />
+                        <div
+                          className="bg-amber-500 h-full transition-all duration-1000"
+                          style={{ width: `${diagnosis.leaf_damage_percentage}%` }}
+                        />
+                        <div
+                          className="bg-[#166534] h-full transition-all duration-1000"
+                          style={{ width: `${diagnosis.healthy_tissue_percentage}%` }}
+                        />
                       </div>
 
-                      <div className="text-xs text-stone-600 pt-1">
-                        Can crop be saved: <strong className="text-[#166534]">{diagnosis.can_be_saved ? '✅ YES (100% Recoverable)' : 'Action Needed'}</strong>
+                      <div className="flex justify-between text-[11px] text-stone-600 pt-1">
+                        <span>Can crop be saved: <strong className="text-[#166534] font-bold">{diagnosis.can_be_saved ? '✅ YES (100% Recoverable)' : 'Critical Attention'}</strong></span>
+                        <span className="font-mono text-stone-500">Timeline: {diagnosis.recovery_timeline}</span>
                       </div>
                     </div>
+
+                    {/* 2. DAMAGE WHICH HAS BEEN DONE */}
+                    <div className="p-5 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-2">
+                      <div className="flex items-center gap-2 text-xs font-bold text-amber-900">
+                        <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0" />
+                        <span>DAMAGE WHICH HAS BEEN DONE:</span>
+                      </div>
+                      <p className="text-xs text-stone-800 leading-relaxed">
+                        {diagnosis.damage_done}
+                      </p>
+                      {diagnosis.symptoms && diagnosis.symptoms.length > 0 && (
+                        <div className="pt-1 flex flex-wrap gap-1.5">
+                          {diagnosis.symptoms.map((s, idx) => (
+                            <span key={idx} className="text-[10px] px-2.5 py-1 rounded-lg bg-white/80 border border-amber-300/60 text-stone-700 font-medium">
+                              • {s}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 3. WHAT IS THE SOLUTION & CHEMICAL/ORGANIC REMEDIES */}
+                    <div className="p-5 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-3">
+                      <div className="flex items-center gap-2 text-xs font-bold text-[#166534]">
+                        <HeartPulse className="w-4 h-4 text-[#166534] shrink-0" />
+                        <span>WHAT IS THE SOLUTION (TREATMENT PROTOCOL):</span>
+                      </div>
+
+                      <ul className="space-y-2 text-xs text-stone-800">
+                        {diagnosis.solution?.map((step, idx) => (
+                          <li key={idx} className="flex items-start gap-2">
+                            <span className="w-5 h-5 rounded-full bg-[#166534] text-white flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
+                              {idx + 1}
+                            </span>
+                            <span className="leading-relaxed">{step}</span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      {/* Organic Remedies */}
+                      {diagnosis.organic_remedies && diagnosis.organic_remedies.length > 0 && (
+                        <div className="pt-2 border-t border-emerald-200/60 space-y-1">
+                          <span className="text-[11px] font-bold text-emerald-900 block">🌿 Organic Bio-Remedies:</span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {diagnosis.organic_remedies.map((org, i) => (
+                              <span key={i} className="text-[10px] px-2.5 py-1 rounded-lg bg-emerald-100/80 text-emerald-950 font-medium">
+                                {org}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 4. PREVENTIVE & CONTINGENCY MEASURES */}
+                    {diagnosis.preventive_measures && diagnosis.preventive_measures.length > 0 && (
+                      <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-2">
+                        <div className="flex items-center gap-2 text-xs font-bold text-stone-900">
+                          <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
+                          <span>PREVENTIVE &amp; COLD-CHAIN SAFEGUARDS:</span>
+                        </div>
+                        <ul className="space-y-1.5 text-xs text-stone-700">
+                          {diagnosis.preventive_measures.map((prev, i) => (
+                            <li key={i} className="flex items-start gap-2">
+                              <span className="text-emerald-700 font-bold">•</span>
+                              <span className="leading-relaxed">{prev}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* 5. AUDIO DOCTOR ADVICE FOR FARMER */}
+                    <div className="p-5 rounded-2xl bg-gradient-to-r from-emerald-900 to-[#166534] text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-md">
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-mono text-[#bef264] uppercase font-bold block">
+                          DOCTOR VOICE PRESCRIPTION
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          {(['te', 'hi', 'en'] as const).map((lang) => (
+                            <button
+                              key={lang}
+                              onClick={() => setDoctorVoiceLang(lang)}
+                              className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                                doctorVoiceLang === lang
+                                  ? 'bg-[#bef264] text-stone-950'
+                                  : 'bg-white/20 text-white hover:bg-white/30'
+                              }`}
+                            >
+                              {lang === 'te' ? 'తెలుగు' : lang === 'hi' ? 'हिंदी' : 'English'}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={handlePlayDoctorAudio}
+                        className="px-6 py-3 rounded-full bg-[#bef264] hover:bg-[#a3e635] text-stone-950 font-extrabold text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer shrink-0"
+                      >
+                        <Volume2 className={`w-4 h-4 ${isSpeaking ? 'animate-bounce' : ''}`} />
+                        <span>{isSpeaking ? 'Speaking Advice...' : '▶ Listen Prescription'}</span>
+                      </button>
+                    </div>
+
                   </div>
                 ) : (
-                  <div className="p-10 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 text-center flex flex-col items-center justify-center min-h-[260px] shadow-lg">
-                    <span className="text-4xl mb-2">🍃</span>
-                    <h4 className="text-sm font-bold text-stone-900">AI Plant Pathology Ready</h4>
-                    <p className="text-xs text-stone-500 mt-1 max-w-xs">Upload a leaf photo to quantify surface damage and hear prescriptions.</p>
+                  <div className="p-12 rounded-3xl bg-white/95 backdrop-blur-md border border-stone-200 text-center flex flex-col items-center justify-center min-h-[300px] shadow-lg space-y-3">
+                    <span className="text-5xl mb-1">🍃</span>
+                    <h4 className="text-base font-bold text-stone-900">Gemini AI Plant Pathology Ready</h4>
+                    <p className="text-xs text-stone-500 max-w-sm leading-relaxed">
+                      Upload a photo or select one of the test samples above to calculate exact leaf damage %, view pathology breakdown, and receive step-by-step chemical and organic remedies.
+                    </p>
                   </div>
                 )}
               </div>
+
             </div>
+
           </div>
         )}
 
