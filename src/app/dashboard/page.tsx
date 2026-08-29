@@ -25,23 +25,12 @@ import {
   Navigation,
   MapPin,
   Clock,
-  Sparkles,
-  Phone,
-  User,
-  CheckCircle2,
-  AlertCircle,
-  Sun,
   Droplets,
-  HeartPulse,
   Leaf,
-  Store,
-  ChevronRight,
 } from 'lucide-react';
 import { sound } from '@/lib/audio';
-import { COMMODITIES, INDIAN_STATES } from '@/config/api';
 import { fetchThingSpeakData } from '@/services/thingspeak';
 import { diagnoseCropImage, DiagnosisData } from '@/services/cropDoctor';
-import { fetchMarketPrices, MarketAnalysis } from '@/services/marketPrices';
 import { planAgriculturalRoute, RouteData } from '@/services/routePlanner';
 import {
   speakFarmerAudio,
@@ -49,6 +38,7 @@ import {
   CALL_SCENARIOS,
   VoiceLanguage,
 } from '@/services/voiceAssistant';
+import { LocationMap } from '@/components/ui/expand-map';
 
 export default function HumanAgriculturalDashboard() {
   const [activeTab, setActiveTab] = useState<'Farmer' | 'Merchant' | 'Driver' | 'Voice' | 'CropDoctor'>('Farmer');
@@ -99,7 +89,7 @@ export default function HumanAgriculturalDashboard() {
     return () => clearInterval(t);
   }, []);
 
-  // Organic micro-breathing (Feels real and live)
+  // Organic micro-breathing
   useEffect(() => {
     const interval = setInterval(() => {
       const jitter = (Math.random() * 0.06 - 0.03);
@@ -116,7 +106,7 @@ export default function HumanAgriculturalDashboard() {
     return () => clearInterval(interval);
   }, [isHeatSpike]);
 
-  // Ingest ThingSpeak
+  // Ingest ThingSpeak & Route
   useEffect(() => {
     fetchThingSpeakData()
       .then((res) => {
@@ -360,25 +350,17 @@ export default function HumanAgriculturalDashboard() {
                 </div>
               </div>
 
-              {/* Tile 3: Live Transit Location */}
-              <div className="p-6 rounded-2xl bg-white border border-stone-200 shadow-sm flex flex-col justify-between">
-                <div className="flex items-center justify-between text-xs font-semibold text-stone-500">
-                  <span>CURRENT LOCATION</span>
-                  <MapPin className="w-4 h-4 text-blue-600" />
+              {/* Tile 3: 3D Expandable Interactive LocationMap */}
+              <div className="p-6 rounded-2xl bg-white border border-stone-200 shadow-sm flex flex-col justify-between items-center text-center">
+                <div className="w-full flex items-center justify-between text-xs font-semibold text-stone-500 mb-2">
+                  <span>LIVE GPS RADAR</span>
+                  <Navigation className="w-4 h-4 text-[#166534]" />
                 </div>
-                <div className="my-3">
-                  <div className="text-2xl font-bold text-stone-900 truncate">
-                    Kurnool Highway
-                  </div>
-                  <div className="flex items-center gap-1.5 mt-1.5">
-                    <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
-                      Speed: {liveSpeed} km/h • On Highway
-                    </span>
-                  </div>
-                </div>
-                <div className="text-xs text-stone-500 pt-2 border-t border-stone-100">
-                  128 km completed of 180 km
-                </div>
+                <LocationMap
+                  location="Kurnool Highway KM 42"
+                  coordinates="15.8281° N, 78.0373° E"
+                  statusText="Live GPS"
+                />
               </div>
 
               {/* Tile 4: Estimated Arrival */}
@@ -663,23 +645,38 @@ export default function HumanAgriculturalDashboard() {
               </div>
             </div>
 
-            {/* Live Navigation Map */}
-            {routeData?.mapEmbedUrl && (
-              <div className="p-6 rounded-2xl bg-white border border-stone-200 shadow-sm space-y-3">
+            {/* Live Navigation Map + 3D Location Map Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              
+              {/* Google Maps Route */}
+              <div className="lg:col-span-8 p-6 rounded-2xl bg-white border border-stone-200 shadow-sm space-y-3">
                 <div className="flex items-center justify-between text-xs font-semibold">
                   <span className="text-stone-900">HIGHWAY ROUTE: ANANTAPUR ➔ KURNOOL APMC MANDI</span>
                   <span className="text-emerald-700 font-bold">{liveDistance} km Traveled</span>
                 </div>
-                <iframe
-                  src={routeData.mapEmbedUrl}
-                  width="100%"
-                  height="420"
-                  className="rounded-xl border border-stone-200"
-                  loading="lazy"
-                  title="Driver Map"
+                {routeData?.mapEmbedUrl && (
+                  <iframe
+                    src={routeData.mapEmbedUrl}
+                    width="100%"
+                    height="380"
+                    className="rounded-xl border border-stone-200"
+                    loading="lazy"
+                    title="Driver Map"
+                  />
+                )}
+              </div>
+
+              {/* 3D Expandable Interactive LocationMap */}
+              <div className="lg:col-span-4 p-6 rounded-2xl bg-white border border-stone-200 shadow-sm flex flex-col items-center justify-center text-center space-y-4">
+                <span className="text-xs font-bold text-stone-900 uppercase">Interactive GPS Node</span>
+                <LocationMap
+                  location="Kurnool Highway KM 42"
+                  coordinates="15.8281° N, 78.0373° E"
+                  statusText="Live Fix"
                 />
               </div>
-            )}
+
+            </div>
           </div>
         )}
 
