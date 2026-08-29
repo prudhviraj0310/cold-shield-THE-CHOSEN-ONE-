@@ -447,7 +447,7 @@ export default function ComprehensiveAgriculturalDashboard() {
         )}
 
         {/* ======================================================== */}
-        {/* VIEW 1: FARMER VIEW (WITH ALL 4 3D EXPANDABLE CARDS)     */}
+        {/* VIEW 1: FARMER VIEW (FOCUSED & PRISTINE)                 */}
         {/* ======================================================== */}
         {activeTab === 'Farmer' && (
           <div className="space-y-8">
@@ -484,12 +484,6 @@ export default function ComprehensiveAgriculturalDashboard() {
               />
 
             </div>
-
-            {/* LIVE MANDI BOARD: WHOLESALE RATES & AUCTION PASSPORT */}
-            <LiveMandiBoard />
-
-            {/* COLD STORAGE FACILITY UNIT LOGS & MANDI PRICE VARIANCE INTELLIGENCE */}
-            <ColdStorageIntelligence />
 
             {/* WARM FARMER VOICE ASSISTANT CARD */}
             <div className="p-6 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg space-y-4">
@@ -693,9 +687,6 @@ export default function ComprehensiveAgriculturalDashboard() {
                 <div className="text-xs text-stone-500 mt-1">{farmerPhone}</div>
               </div>
             </div>
-
-            {/* Live Mandi Board */}
-            <LiveMandiBoard />
 
             {/* Cold Storage Facility Inventory & Unit Logs */}
             <ColdStorageIntelligence />
