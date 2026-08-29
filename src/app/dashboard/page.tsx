@@ -64,6 +64,11 @@ import { Footer } from '@/components/Footer';
 
 const SAMPLE_LEAF_IMAGES = [
   {
+    name: '🍅 50% Half-Spoiled Tomato Test',
+    crop: 'Tomato Fruit & Leaf',
+    url: '/samples/half_spoiled_tomato.jpg',
+  },
+  {
     name: '🌿 Sample 1: Tomato Early Blight',
     crop: 'Tomato',
     url: 'https://images.unsplash.com/photo-1592417817098-8f3d6eb22509?q=80&w=600&auto=format&fit=crop',
