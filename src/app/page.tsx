@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Lenis from 'lenis';
 import { ArrowRight, ArrowDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Footer } from '@/components/Footer';
 
 const TOTAL_FRAMES = 240;
 
@@ -95,7 +96,6 @@ export default function Native60HzStoryPage() {
     for (let i = 1; i <= TOTAL_FRAMES; i++) {
       const img = new Image();
       const numStr = String(i).padStart(4, '0');
-      // Use lightweight high-res WebP frames
       img.src = `/frames/frame_${numStr}.webp`;
 
       img.onload = async () => {
@@ -113,7 +113,6 @@ export default function Native60HzStoryPage() {
         loaded++;
         setImagesLoaded(loaded);
 
-        // Draw initial frame as soon as frame 1 arrives
         if (i === 1 && canvasRef.current && lastRenderedFrameRef.current === -1) {
           const canvas = canvasRef.current;
           const ctx = canvas.getContext('2d');
@@ -123,7 +122,6 @@ export default function Native60HzStoryPage() {
         }
       };
 
-      // Fallback for jpg
       img.onerror = () => {
         const fallbackImg = new Image();
         fallbackImg.src = `/frames/frame_${numStr}.jpg`;
@@ -147,7 +145,7 @@ export default function Native60HzStoryPage() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = window.innerWidth * dpr;
     canvas.height = window.innerHeight * dpr;
-    lastRenderedFrameRef.current = -1; // force redraw
+    lastRenderedFrameRef.current = -1;
   }, []);
 
   useEffect(() => {
@@ -176,7 +174,6 @@ export default function Native60HzStoryPage() {
       const progress = Math.max(0, Math.min(1, -rect.top / totalScrollable));
       targetProgressRef.current = progress;
 
-      // Select active chapter based on 5 equal segments
       if (progress <= 0.20) setCurrentChapterIndex(0);
       else if (progress <= 0.40) setCurrentChapterIndex(1);
       else if (progress <= 0.60) setCurrentChapterIndex(2);
@@ -375,6 +372,11 @@ export default function Native60HzStoryPage() {
 
         </div>
       </div>
+
+      {/* ========================================================== */}
+      {/* REFERENCE DESIGN AGRICULTURAL FOOTER                       */}
+      {/* ========================================================== */}
+      <Footer />
 
     </div>
   );

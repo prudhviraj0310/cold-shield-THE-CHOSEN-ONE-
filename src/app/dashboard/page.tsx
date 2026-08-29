@@ -53,6 +53,8 @@ import {
   RealProduceQualityCard,
   RealMandiArrivalCard,
 } from '@/components/ui/expandable-telemetry-cards';
+import { ColdStorageIntelligence } from '@/components/ColdStorageIntelligence';
+import { Footer } from '@/components/Footer';
 
 export default function ComprehensiveAgriculturalDashboard() {
   const [activeTab, setActiveTab] = useState<'Farmer' | 'Merchant' | 'Driver' | 'Voice' | 'CropDoctor'>('Farmer');
@@ -435,7 +437,7 @@ export default function ComprehensiveAgriculturalDashboard() {
         {/* VIEW 1: FARMER VIEW (WITH ALL 4 3D EXPANDABLE CARDS)     */}
         {/* ======================================================== */}
         {activeTab === 'Farmer' && (
-          <div className="space-y-6">
+          <div className="space-y-8">
             
             {/* 4 3D EXPANDABLE INTERACTIVE TILES */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 items-start">
@@ -469,6 +471,9 @@ export default function ComprehensiveAgriculturalDashboard() {
               />
 
             </div>
+
+            {/* COLD STORAGE FACILITY UNIT LOGS & MANDI PRICE VARIANCE INTELLIGENCE */}
+            <ColdStorageIntelligence />
 
             {/* WARM FARMER VOICE ASSISTANT CARD */}
             <div className="p-6 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg space-y-4">
@@ -672,6 +677,9 @@ export default function ComprehensiveAgriculturalDashboard() {
                 <div className="text-xs text-stone-500 mt-1">{farmerPhone}</div>
               </div>
             </div>
+
+            {/* Cold Storage Facility Inventory & Unit Logs */}
+            <ColdStorageIntelligence />
           </div>
         )}
 
@@ -898,14 +906,9 @@ export default function ComprehensiveAgriculturalDashboard() {
       </main>
 
       {/* FOOTER */}
-      <footer className="relative z-10 mt-16 bg-black/50 backdrop-blur-xl border-t border-white/20 py-6 px-4 sm:px-8 text-xs text-white/75">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div>COLD SHIELD // PHYSICAL DEMO BOX &amp; LIVE VIDEO PLATFORM</div>
-          <Link href="/" className="text-[#bef264] hover:underline font-bold">
-            ← Return to Cinematic Story
-          </Link>
-        </div>
-      </footer>
+      <div className="relative z-10 mt-16">
+        <Footer />
+      </div>
 
     </div>
   );
