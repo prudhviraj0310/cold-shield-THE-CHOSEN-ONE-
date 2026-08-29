@@ -36,6 +36,7 @@ import {
   RotateCw,
   Box,
   Cpu,
+  Building,
 } from 'lucide-react';
 import { sound } from '@/lib/audio';
 import { fetchThingSpeakData } from '@/services/thingspeak';
@@ -54,10 +55,11 @@ import {
   RealMandiArrivalCard,
 } from '@/components/ui/expandable-telemetry-cards';
 import { ColdStorageIntelligence } from '@/components/ColdStorageIntelligence';
+import { LiveMandiBoard } from '@/components/LiveMandiBoard';
 import { Footer } from '@/components/Footer';
 
 export default function ComprehensiveAgriculturalDashboard() {
-  const [activeTab, setActiveTab] = useState<'Farmer' | 'Merchant' | 'Driver' | 'Voice' | 'CropDoctor'>('Farmer');
+  const [activeTab, setActiveTab] = useState<'Farmer' | 'Mandi' | 'Merchant' | 'Driver' | 'Voice' | 'CropDoctor'>('Farmer');
   const [timeString, setTimeString] = useState<string>('');
 
   // -------------------------------------------------------------
@@ -287,6 +289,7 @@ export default function ComprehensiveAgriculturalDashboard() {
           <nav className="flex items-center gap-1.5 p-1 bg-white/10 rounded-full border border-white/20 text-xs font-semibold backdrop-blur-md">
             {[
               { id: 'Farmer', label: '👨‍🌾 Farmer' },
+              { id: 'Mandi', label: '🏛️ Mandi Info' },
               { id: 'Merchant', label: '🏢 Merchant' },
               { id: 'Driver', label: '🚛 Driver' },
               { id: 'Voice', label: '🎙️ Voice' },
@@ -298,7 +301,7 @@ export default function ComprehensiveAgriculturalDashboard() {
                   sound.playClick(900);
                   setActiveTab(tab.id as any);
                 }}
-                className={`px-4 py-2 rounded-full transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
                   activeTab === tab.id
                     ? isHot
                       ? 'bg-red-600 text-white font-extrabold shadow-md'
@@ -434,6 +437,16 @@ export default function ComprehensiveAgriculturalDashboard() {
         </div>
 
         {/* ======================================================== */}
+        {/* VIEW: DEDICATED MANDI INFORMATION VIEW                  */}
+        {/* ======================================================== */}
+        {activeTab === 'Mandi' && (
+          <div className="space-y-8">
+            <LiveMandiBoard />
+            <ColdStorageIntelligence />
+          </div>
+        )}
+
+        {/* ======================================================== */}
         {/* VIEW 1: FARMER VIEW (WITH ALL 4 3D EXPANDABLE CARDS)     */}
         {/* ======================================================== */}
         {activeTab === 'Farmer' && (
@@ -471,6 +484,9 @@ export default function ComprehensiveAgriculturalDashboard() {
               />
 
             </div>
+
+            {/* LIVE MANDI BOARD: WHOLESALE RATES & AUCTION PASSPORT */}
+            <LiveMandiBoard />
 
             {/* COLD STORAGE FACILITY UNIT LOGS & MANDI PRICE VARIANCE INTELLIGENCE */}
             <ColdStorageIntelligence />
@@ -642,7 +658,7 @@ export default function ComprehensiveAgriculturalDashboard() {
         {/* VIEW 2: MERCHANT PORTAL                                  */}
         {/* ======================================================== */}
         {activeTab === 'Merchant' && (
-          <div className="space-y-6">
+          <div className="space-y-8">
             <div className="p-6 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider block">
@@ -677,6 +693,9 @@ export default function ComprehensiveAgriculturalDashboard() {
                 <div className="text-xs text-stone-500 mt-1">{farmerPhone}</div>
               </div>
             </div>
+
+            {/* Live Mandi Board */}
+            <LiveMandiBoard />
 
             {/* Cold Storage Facility Inventory & Unit Logs */}
             <ColdStorageIntelligence />
