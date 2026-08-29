@@ -47,14 +47,19 @@ import {
   CALL_SCENARIOS,
   VoiceLanguage,
 } from '@/services/voiceAssistant';
-import { LocationMap } from '@/components/ui/expand-map';
+import {
+  RealLocationMapCard,
+  RealTempProbeCard,
+  RealProduceQualityCard,
+  RealMandiArrivalCard,
+} from '@/components/ui/expandable-telemetry-cards';
 
-export default function HumanAgriculturalDashboard() {
+export default function ComprehensiveAgriculturalDashboard() {
   const [activeTab, setActiveTab] = useState<'Farmer' | 'Merchant' | 'Driver' | 'Voice' | 'CropDoctor'>('Farmer');
   const [timeString, setTimeString] = useState<string>('');
 
   // -------------------------------------------------------------
-  // PHYSICAL DEMO BOX SIMULATOR STATE (RED ➔ COLD ICY GREEN)
+  // PHYSICAL DEMO BOX SIMULATOR STATE
   // -------------------------------------------------------------
   const [liveTemp, setLiveTemp] = useState<number>(4.2);
   const [liveHum, setLiveHum] = useState<number>(68.0);
@@ -128,7 +133,6 @@ export default function HumanAgriculturalDashboard() {
     setLiveTemp(8.6);
     setSignalStatus('⚠️ HIGH HEAT DETECTED! SENSORS EXCEEDED 8.0°C THRESHOLD');
 
-    // Add to chart history
     setTempTrend((prev) => [
       ...prev,
       { time: new Date().toLocaleTimeString().slice(0, 5), temp: 8.6, ambient: 33.5 },
@@ -144,7 +148,6 @@ export default function HumanAgriculturalDashboard() {
     setSignalStatus('📡 TRANSMITTING COOLING PWM SIGNAL TO ESP32 REEFER RELAY...');
     setCoolingProgress(20);
 
-    // Progressive real-time temperature drop simulation
     setTimeout(() => {
       setLiveTemp(7.2);
       setCoolingProgress(50);
@@ -262,7 +265,7 @@ export default function HumanAgriculturalDashboard() {
                   Cold Shield
                 </h1>
                 <span className="text-[11px] text-stone-500 font-medium">
-                  Physical Box Sensor Demo Node
+                  3D Interactive Telemetry &amp; GPS Radar
                 </span>
               </div>
             </div>
@@ -335,7 +338,6 @@ export default function HumanAgriculturalDashboard() {
         }`}>
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
             
-            {/* Box Schematic & Tomato Probe Visual */}
             <div className="flex items-center gap-5">
               <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-4xl shadow-inner transition-all duration-500 ${
                 isHot ? 'bg-red-700/80 animate-pulse ring-4 ring-white/40' : isCooling ? 'bg-teal-900/80 ring-4 ring-cyan-300/40' : 'bg-emerald-950/80'
@@ -361,10 +363,7 @@ export default function HumanAgriculturalDashboard() {
               </div>
             </div>
 
-            {/* Live Temperature Dial & Instant Actions */}
             <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
-              
-              {/* Temperature Badge */}
               <div className="p-4 rounded-2xl bg-black/30 backdrop-blur-md border border-white/20 text-center min-w-[130px]">
                 <span className="text-[10px] font-mono uppercase tracking-widest block opacity-75">Inside Box</span>
                 <div className="text-4xl font-extrabold font-mono tracking-tight my-0.5">
@@ -375,10 +374,7 @@ export default function HumanAgriculturalDashboard() {
                 </span>
               </div>
 
-              {/* Action Buttons for Live Demo */}
               <div className="flex flex-col gap-2 flex-1 sm:flex-none">
-                
-                {/* Button 1: Inject Heat */}
                 <button
                   onClick={handleInjectHeat}
                   className={`px-4 py-2.5 rounded-xl font-bold text-xs transition-all shadow-sm cursor-pointer flex items-center justify-center gap-2 ${
@@ -391,7 +387,6 @@ export default function HumanAgriculturalDashboard() {
                   <span>1. Simulate Heat In Box (8.6°C)</span>
                 </button>
 
-                {/* Button 2: Send Cooling Signal */}
                 <button
                   onClick={handleSendCoolingSignal}
                   className={`px-5 py-3 rounded-xl font-extrabold text-xs transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 ${
@@ -405,14 +400,11 @@ export default function HumanAgriculturalDashboard() {
                   <Snowflake className={`w-4 h-4 ${isCooling ? 'animate-spin' : ''}`} />
                   <span>2. Transmit Cooling Signal (Turn Cold)</span>
                 </button>
-
               </div>
-
             </div>
 
           </div>
 
-          {/* Cooling Progress Bar (Shown during active cooling) */}
           {isCooling && (
             <div className="mt-6 pt-4 border-t border-white/20 space-y-1.5">
               <div className="flex justify-between text-xs font-mono font-bold">
@@ -430,99 +422,41 @@ export default function HumanAgriculturalDashboard() {
         </div>
 
         {/* ======================================================== */}
-        {/* VIEW 1: FARMER PORTAL                                    */}
+        {/* VIEW 1: FARMER VIEW (WITH ALL 4 3D EXPANDABLE CARDS)     */}
         {/* ======================================================== */}
         {activeTab === 'Farmer' && (
           <div className="space-y-6">
             
-            {/* 4 METRIC TILES */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {/* 4 3D EXPANDABLE INTERACTIVE TILES */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 items-start">
               
-              {/* Tile 1: Inside Cargo Temperature */}
-              <div className={`p-6 rounded-2xl border shadow-sm flex flex-col justify-between transition-colors duration-500 ${
-                isHot
-                  ? 'bg-red-50/80 border-red-300'
-                  : isCooling
-                  ? 'bg-teal-50/80 border-teal-300'
-                  : 'bg-white border-stone-200'
-              }`}>
-                <div className="flex items-center justify-between text-xs font-semibold text-stone-500">
-                  <span>CARGO TEMPERATURE</span>
-                  <Thermometer className={`w-4 h-4 ${isHot ? 'text-red-600 animate-bounce' : 'text-[#166534]'}`} />
-                </div>
-                <div className="my-3">
-                  <div className={`text-4xl font-extrabold tracking-tight ${
-                    isHot ? 'text-red-600' : isCooling ? 'text-teal-700' : 'text-[#166534]'
-                  }`}>
-                    {liveTemp.toFixed(1)}°C
-                  </div>
-                  <div className="flex items-center gap-1.5 mt-1.5">
-                    <span className={`w-2 h-2 rounded-full ${isHot ? 'bg-red-500 animate-ping' : 'bg-emerald-500'}`} />
-                    <span className="text-xs font-semibold text-stone-700">
-                      {isHot ? '⚠️ Above 8.0°C Limit' : isCooling ? '❄️ Active Cooling Down' : 'Optimal Safe Corridor'}
-                    </span>
-                  </div>
-                </div>
-                <div className="text-xs text-stone-500 pt-2 border-t border-stone-100">
-                  Safe: 2°C – 8°C • Outside: 31.7°C
-                </div>
-              </div>
+              {/* Tile 1: 3D Expandable Temperature & Compressor Probe */}
+              <RealTempProbeCard
+                temp={liveTemp}
+                humidity={liveHum}
+                isHot={isHot}
+              />
 
-              {/* Tile 2: Fruit & Produce Freshness */}
-              <div className="p-6 rounded-2xl bg-white border border-stone-200 shadow-sm flex flex-col justify-between">
-                <div className="flex items-center justify-between text-xs font-semibold text-stone-500">
-                  <span>PRODUCE FRESHNESS</span>
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                </div>
-                <div className="my-3">
-                  <div className="text-4xl font-extrabold text-stone-900 tracking-tight">
-                    {isHot ? '88.0%' : '99.4%'}
-                  </div>
-                  <div className="flex items-center gap-1.5 mt-1.5">
-                    <Droplets className="w-3.5 h-3.5 text-blue-500" />
-                    <span className="text-xs font-semibold text-stone-700">
-                      Humidity: {liveHum}% RH (Target 70-95%)
-                    </span>
-                  </div>
-                </div>
-                <div className="text-xs text-stone-500 pt-2 border-t border-stone-100">
-                  Zero spoilage • Crisp &amp; Salable
-                </div>
-              </div>
+              {/* Tile 2: 3D Expandable Produce Freshness & Brix Card */}
+              <RealProduceQualityCard
+                freshness={isHot ? 88.2 : 99.4}
+                humidity={liveHum}
+                isHot={isHot}
+              />
 
-              {/* Tile 3: 3D Expandable Interactive LocationMap */}
-              <div className="p-6 rounded-2xl bg-white border border-stone-200 shadow-sm flex flex-col justify-between items-center text-center">
-                <div className="w-full flex items-center justify-between text-xs font-semibold text-stone-500 mb-2">
-                  <span>LIVE GPS RADAR</span>
-                  <Navigation className="w-4 h-4 text-[#166534]" />
-                </div>
-                <LocationMap
-                  location="Kurnool Highway KM 42"
-                  coordinates="15.8281° N, 78.0373° E"
-                  statusText="Live GPS"
-                />
-              </div>
+              {/* Tile 3: 3D Expandable Real OpenStreetMap Highway Radar Card */}
+              <RealLocationMapCard
+                location="Kurnool Highway (NH 44, KM 42)"
+                coordinates="15.8281° N, 78.0373° E"
+                speed={liveSpeed}
+                distanceKm={liveDistance}
+              />
 
-              {/* Tile 4: Estimated Arrival */}
-              <div className="p-6 rounded-2xl bg-white border border-stone-200 shadow-sm flex flex-col justify-between">
-                <div className="flex items-center justify-between text-xs font-semibold text-stone-500">
-                  <span>ESTIMATED ARRIVAL</span>
-                  <Clock className="w-4 h-4 text-purple-600" />
-                </div>
-                <div className="my-3">
-                  <div className="text-4xl font-extrabold text-stone-900 tracking-tight">
-                    4:00 PM
-                  </div>
-                  <div className="flex items-center gap-1.5 mt-1.5">
-                    <span className="text-xs font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded">
-                      Today on Schedule
-                    </span>
-                  </div>
-                </div>
-                <div className="text-xs text-stone-500 pt-2 border-t border-stone-100">
-                  Kurnool Mandi APMC Yard
-                </div>
-              </div>
+              {/* Tile 4: 3D Expandable Mandi Valuation & Financial Card */}
+              <RealMandiArrivalCard
+                eta="4:00 PM"
+                mandiRate={2450}
+              />
 
             </div>
 
@@ -709,7 +643,7 @@ export default function HumanAgriculturalDashboard() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <div className="p-5 rounded-2xl bg-white border border-stone-200 shadow-sm">
                 <span className="text-xs font-semibold text-stone-500 block">BATCH VOLUME</span>
                 <div className="text-2xl font-bold text-stone-900 mt-1">180 Crates (3,600 kg)</div>
@@ -777,10 +711,11 @@ export default function HumanAgriculturalDashboard() {
 
               <div className="lg:col-span-4 p-6 rounded-2xl bg-white border border-stone-200 shadow-sm flex flex-col items-center justify-center text-center space-y-4">
                 <span className="text-xs font-bold text-stone-900 uppercase">Interactive GPS Node</span>
-                <LocationMap
-                  location="Kurnool Highway KM 42"
+                <RealLocationMapCard
+                  location="Kurnool Highway (NH 44, KM 42)"
                   coordinates="15.8281° N, 78.0373° E"
-                  statusText="Live Fix"
+                  speed={liveSpeed}
+                  distanceKm={liveDistance}
                 />
               </div>
             </div>
@@ -955,7 +890,7 @@ export default function HumanAgriculturalDashboard() {
       {/* FOOTER */}
       <footer className="mt-16 bg-white border-t border-stone-200 py-6 px-4 sm:px-8 text-xs text-stone-500">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div>COLD SHIELD // PHYSICAL DEMO BOX &amp; SENSOR PLATFORM</div>
+          <div>COLD SHIELD // 3D INTERACTIVE TELEMETRY &amp; REAL MAP PLATFORM</div>
           <Link href="/" className="text-[#166534] hover:underline font-semibold">
             ← Return to Cinematic Story
           </Link>
