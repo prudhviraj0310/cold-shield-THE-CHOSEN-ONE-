@@ -224,7 +224,7 @@ export default function ComprehensiveAgriculturalDashboard() {
     }`}>
 
       {/* ========================================================== */}
-      {/* HIGHLY VISIBLE LOOPING BACKGROUND VIDEO LAYER              */}
+      {/* HIGHLY VISIBLE 85% OPACITY BACKGROUND VIDEO LAYER          */}
       {/* ========================================================== */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
         <video
@@ -232,63 +232,63 @@ export default function ComprehensiveAgriculturalDashboard() {
           loop
           muted
           playsInline
-          className="w-full h-full object-cover opacity-50"
+          className="w-full h-full object-cover opacity-85 brightness-105"
         >
           <source src="/media/dashboard_loop.mp4" type="video/mp4" />
         </video>
 
-        {/* Dynamic theme tint overlay */}
+        {/* Minimal subtle gradient overlay for readability without washing out video */}
         <div className={`absolute inset-0 transition-colors duration-700 ${
           isHot
-            ? 'bg-gradient-to-b from-red-950/70 via-red-900/50 to-red-950/80 backdrop-blur-[1px]'
+            ? 'bg-red-950/30'
             : isCooling
-            ? 'bg-gradient-to-b from-cyan-950/70 via-teal-900/50 to-blue-950/80 backdrop-blur-[1px]'
-            : 'bg-gradient-to-b from-stone-900/40 via-stone-900/25 to-stone-900/50 backdrop-blur-[1px]'
+            ? 'bg-teal-950/25'
+            : 'bg-black/15'
         }`} />
       </div>
       
       {/* ========================================================== */}
-      {/* HEADER WITH DYNAMIC THERMAL STATUS BAR                     */}
+      {/* TOP ENLARGED FLOATING PILL HEADER                          */}
       {/* ========================================================== */}
-      <header className="sticky top-0 z-40 backdrop-blur-xl border-b border-white/20 bg-black/40 text-white shadow-lg transition-colors duration-500">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 h-18 flex items-center justify-between">
+      <div className="sticky top-3 z-50 px-4 sm:px-8 max-w-7xl mx-auto">
+        <header className="rounded-full bg-black/65 backdrop-blur-2xl border border-white/25 text-white px-6 py-3.5 shadow-2xl flex items-center justify-between transition-all duration-500">
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3.5">
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/15 hover:bg-white/25 text-xs font-semibold text-white transition-colors border border-white/20 shadow-xs"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 hover:bg-white/30 text-xs font-bold text-white transition-all border border-white/25 shadow-xs"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Cinematic Story</span>
+              <ArrowLeft className="w-4 h-4" />
+              <span>Story</span>
             </Link>
 
-            <div className="h-5 w-px bg-white/20" />
+            <div className="h-5 w-px bg-white/25" />
 
-            <div className="flex items-center gap-2.5">
-              <div className={`w-8 h-8 rounded-lg text-white flex items-center justify-center shadow-xs transition-colors duration-500 ${
+            <div className="flex items-center gap-3">
+              <div className={`w-9 h-9 rounded-full text-white flex items-center justify-center shadow-md transition-colors duration-500 ${
                 isHot ? 'bg-red-600' : isCooling ? 'bg-teal-500' : 'bg-[#22c55e]'
               }`}>
-                {isHot ? <Flame className="w-4 h-4 animate-bounce" /> : isCooling ? <Snowflake className="w-4 h-4 animate-spin" /> : <Leaf className="w-4 h-4 text-black" />}
+                {isHot ? <Flame className="w-4.5 h-4.5 animate-bounce" /> : isCooling ? <Snowflake className="w-4.5 h-4.5 animate-spin" /> : <Leaf className="w-4.5 h-4.5 text-black" />}
               </div>
-              <div>
-                <h1 className="text-sm font-bold text-white tracking-tight leading-none">
+              <div className="hidden sm:block">
+                <h1 className="text-sm font-extrabold text-white tracking-tight leading-none">
                   Cold Shield
                 </h1>
-                <span className="text-[11px] text-white/70 font-medium">
-                  Physical Node &amp; Live Video Telemetry Radar
+                <span className="text-[10px] text-white/75 font-medium font-mono">
+                  Live Video Node
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Role Navigation */}
-          <nav className="flex items-center gap-1.5 p-1 bg-black/40 rounded-xl border border-white/20 text-xs font-medium backdrop-blur-md">
+          {/* Role Navigation Pills */}
+          <nav className="flex items-center gap-1.5 p-1 bg-white/10 rounded-full border border-white/20 text-xs font-semibold backdrop-blur-md">
             {[
               { id: 'Farmer', label: '👨‍🌾 Farmer' },
               { id: 'Merchant', label: '🏢 Merchant' },
               { id: 'Driver', label: '🚛 Driver' },
-              { id: 'Voice', label: '🎙️ Voice Assistant' },
-              { id: 'CropDoctor', label: '🍃 Crop Doctor' },
+              { id: 'Voice', label: '🎙️ Voice' },
+              { id: 'CropDoctor', label: '🍃 Doctor' },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -296,14 +296,14 @@ export default function ComprehensiveAgriculturalDashboard() {
                   sound.playClick(900);
                   setActiveTab(tab.id as any);
                 }}
-                className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer ${
+                className={`px-4 py-2 rounded-full transition-all cursor-pointer ${
                   activeTab === tab.id
                     ? isHot
-                      ? 'bg-red-600 text-white font-bold shadow-xs'
+                      ? 'bg-red-600 text-white font-extrabold shadow-md'
                       : isCooling
-                      ? 'bg-teal-500 text-black font-bold shadow-xs'
-                      : 'bg-[#bef264] text-black font-extrabold shadow-xs'
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                      ? 'bg-teal-500 text-black font-extrabold shadow-md'
+                      : 'bg-[#bef264] text-black font-extrabold shadow-md'
+                    : 'text-white/80 hover:text-white hover:bg-white/15'
                 }`}
               >
                 {tab.label}
@@ -312,74 +312,74 @@ export default function ComprehensiveAgriculturalDashboard() {
           </nav>
 
           {/* Real-time Status Badge */}
-          <div className="hidden sm:flex items-center gap-2.5">
-            <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border transition-colors duration-500 ${
+          <div className="hidden md:flex items-center gap-3">
+            <div className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-extrabold border transition-colors duration-500 ${
               isHot
-                ? 'bg-red-500/30 text-red-200 border-red-400 animate-pulse'
+                ? 'bg-red-500/40 text-red-100 border-red-400 animate-pulse'
                 : isCooling
-                ? 'bg-teal-500/30 text-teal-200 border-teal-400'
-                : 'bg-emerald-500/30 text-emerald-200 border-emerald-400'
+                ? 'bg-teal-500/40 text-teal-100 border-teal-400'
+                : 'bg-emerald-500/40 text-emerald-100 border-emerald-400'
             }`}>
-              <span className={`w-2 h-2 rounded-full ${
-                isHot ? 'bg-red-500' : isCooling ? 'bg-teal-400 animate-ping' : 'bg-emerald-400'
+              <span className={`w-2.5 h-2.5 rounded-full ${
+                isHot ? 'bg-red-400 animate-ping' : isCooling ? 'bg-teal-300 animate-ping' : 'bg-emerald-300'
               }`} />
-              <span>{isHot ? '⚠️ HEAT ALERT (8.6°C)' : isCooling ? '❄️ COOLING ACTIVE' : 'LIVE 4.2°C OPTIMAL'}</span>
+              <span>{isHot ? '⚠️ HEAT ALERT (8.6°C)' : isCooling ? '❄️ COOLING ACTIVE' : '4.2°C OPTIMAL'}</span>
             </div>
-            <span className="text-xs font-mono text-white/80">{timeString}</span>
+            <span className="text-xs font-mono text-white/85 font-semibold">{timeString}</span>
           </div>
 
-        </div>
-      </header>
+        </header>
+      </div>
 
       {/* ========================================================== */}
       {/* MAIN CONTAINER                                             */}
       {/* ========================================================== */}
-      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 py-8 space-y-8">
+      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 py-6 space-y-8">
 
         {/* ======================================================== */}
         {/* PHYSICAL DEMO BOX HERO CARD (CALM GREEN ➔ VIVID RED)     */}
         {/* ======================================================== */}
         <div className={`p-6 sm:p-8 rounded-3xl border-2 transition-all duration-700 shadow-2xl backdrop-blur-xl ${
           isHot
-            ? 'bg-gradient-to-br from-red-600/90 via-red-700/90 to-amber-700/90 text-white border-red-400 shadow-red-500/40'
+            ? 'bg-red-950/85 text-white border-red-500/80 shadow-red-500/30'
             : isCooling
-            ? 'bg-gradient-to-br from-teal-700/90 via-cyan-800/90 to-blue-900/90 text-white border-cyan-300 shadow-teal-500/40'
-            : 'bg-gradient-to-br from-emerald-900/95 via-emerald-950/95 to-stone-900/95 text-white border-emerald-500/60 shadow-emerald-950/40'
+            ? 'bg-teal-950/85 text-white border-cyan-400/80 shadow-teal-500/30'
+            : 'bg-emerald-950/85 text-white border-emerald-500/70 shadow-emerald-950/30'
         }`}>
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
             
             <div className="flex items-center gap-5">
               <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-4xl shadow-inner transition-all duration-500 ${
-                isHot ? 'bg-red-700/80 animate-pulse ring-4 ring-white/40' : isCooling ? 'bg-teal-900/80 ring-4 ring-cyan-300/40' : 'bg-emerald-950/80'
+                isHot ? 'bg-red-700/80 animate-pulse ring-4 ring-white/40' : isCooling ? 'bg-teal-900/80 ring-4 ring-cyan-300/40' : 'bg-emerald-900/80'
               }`}>
                 🍅
               </div>
 
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-white/20 text-white backdrop-blur-xs">
+                  <span className="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-white/20 text-white backdrop-blur-xs">
                     Live Demo Box Probe
                   </span>
-                  <span className="text-xs font-mono opacity-80">ESP32 + DHT11 Probe Link</span>
+                  <span className="text-xs font-mono opacity-85">ESP32 + DHT11 Probe Link</span>
                 </div>
 
-                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight mt-1">
+                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight mt-1 text-white">
                   {isHot ? 'Thermal Drift: Box Heating Detected (8.6°C)!' : isCooling ? 'Compressor Active: Cooling Tomato...' : 'Cold Box: 4.2°C Safe & Protected'}
                 </h2>
 
-                <p className="text-xs opacity-90 font-mono mt-1 flex items-center gap-2">
+                <p className="text-xs opacity-90 font-mono mt-1 flex items-center gap-2 text-white/90">
                   <span>{signalStatus}</span>
                 </p>
               </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
-              <div className="p-4 rounded-2xl bg-black/50 backdrop-blur-md border border-white/20 text-center min-w-[130px]">
-                <span className="text-[10px] font-mono uppercase tracking-widest block opacity-75">Inside Box</span>
-                <div className="text-4xl font-extrabold font-mono tracking-tight my-0.5">
+              <div className="p-4 rounded-2xl bg-black/60 backdrop-blur-md border border-white/20 text-center min-w-[130px]">
+                <span className="text-[10px] font-mono uppercase tracking-widest block text-white/75">Inside Box</span>
+                <div className="text-4xl font-extrabold font-mono tracking-tight my-0.5 text-white">
                   {liveTemp.toFixed(1)}°C
                 </div>
-                <span className="text-[10px] font-bold opacity-90 block">
+                <span className="text-[10px] font-bold block text-white/90">
                   {isHot ? '⚠️ EXCEEDS 8.0°C' : isCooling ? '❄️ COOLING DOWN' : '✅ SAFE CORRIDOR'}
                 </span>
               </div>
@@ -389,8 +389,8 @@ export default function ComprehensiveAgriculturalDashboard() {
                   onClick={handleInjectHeat}
                   className={`px-4 py-2.5 rounded-xl font-bold text-xs transition-all shadow-sm cursor-pointer flex items-center justify-center gap-2 ${
                     isHot
-                      ? 'bg-white text-red-700 shadow-md ring-2 ring-white'
-                      : 'bg-white/15 hover:bg-white/25 text-white border border-white/20'
+                      ? 'bg-white text-red-700 shadow-md ring-2 ring-white font-extrabold'
+                      : 'bg-white/20 hover:bg-white/30 text-white border border-white/30'
                   }`}
                 >
                   <Flame className="w-4 h-4" />
@@ -417,7 +417,7 @@ export default function ComprehensiveAgriculturalDashboard() {
 
           {isCooling && (
             <div className="mt-6 pt-4 border-t border-white/20 space-y-1.5">
-              <div className="flex justify-between text-xs font-mono font-bold">
+              <div className="flex justify-between text-xs font-mono font-bold text-white">
                 <span>REFRIGERATION POWER CYCLE:</span>
                 <span>{coolingProgress}% COMPLETED (TARGET 4.2°C)</span>
               </div>
@@ -471,7 +471,7 @@ export default function ComprehensiveAgriculturalDashboard() {
             </div>
 
             {/* WARM FARMER VOICE ASSISTANT CARD */}
-            <div className="p-6 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-md space-y-4">
+            <div className="p-6 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-200">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-[#166534] text-white flex items-center justify-center shadow-xs">
@@ -488,10 +488,10 @@ export default function ComprehensiveAgriculturalDashboard() {
                 </div>
 
                 {/* Language Picker */}
-                <div className="flex items-center gap-1 p-1 bg-stone-100 rounded-lg text-xs font-semibold">
+                <div className="flex items-center gap-1 p-1 bg-stone-100 rounded-full text-xs font-semibold">
                   <button
                     onClick={() => setVoiceLang('te')}
-                    className={`px-3 py-1 rounded-md cursor-pointer transition-all ${
+                    className={`px-4 py-1.5 rounded-full cursor-pointer transition-all ${
                       voiceLang === 'te' ? 'bg-[#166534] text-white shadow-xs' : 'text-stone-600 hover:bg-stone-200'
                     }`}
                   >
@@ -499,7 +499,7 @@ export default function ComprehensiveAgriculturalDashboard() {
                   </button>
                   <button
                     onClick={() => setVoiceLang('hi')}
-                    className={`px-3 py-1 rounded-md cursor-pointer transition-all ${
+                    className={`px-4 py-1.5 rounded-full cursor-pointer transition-all ${
                       voiceLang === 'hi' ? 'bg-[#166534] text-white shadow-xs' : 'text-stone-600 hover:bg-stone-200'
                     }`}
                   >
@@ -507,7 +507,7 @@ export default function ComprehensiveAgriculturalDashboard() {
                   </button>
                   <button
                     onClick={() => setVoiceLang('en')}
-                    className={`px-3 py-1 rounded-md cursor-pointer transition-all ${
+                    className={`px-4 py-1.5 rounded-full cursor-pointer transition-all ${
                       voiceLang === 'en' ? 'bg-[#166534] text-white shadow-xs' : 'text-stone-600 hover:bg-stone-200'
                     }`}
                   >
@@ -533,7 +533,7 @@ export default function ComprehensiveAgriculturalDashboard() {
                 <div className="flex gap-2 shrink-0">
                   <button
                     onClick={() => handlePlayVoice(isHot ? 'TEMP_SPIKE_AUTONOMOUS_FIX' : 'TRANSIT_SAFE')}
-                    className="px-5 py-3 rounded-xl bg-[#166534] hover:bg-[#15803d] text-white text-xs font-bold transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+                    className="px-5 py-3 rounded-full bg-[#166534] hover:bg-[#15803d] text-white text-xs font-bold transition-all flex items-center gap-2 shadow-sm cursor-pointer"
                   >
                     <PhoneCall className={`w-4 h-4 ${isSpeaking ? 'animate-bounce' : ''}`} />
                     <span>{isSpeaking ? 'Speaking Aloud...' : '▶ Listen in Voice'}</span>
@@ -542,7 +542,7 @@ export default function ComprehensiveAgriculturalDashboard() {
                   {isSpeaking && (
                     <button
                       onClick={handleStopVoice}
-                      className="px-4 py-3 rounded-xl bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs font-bold cursor-pointer"
+                      className="px-4 py-3 rounded-full bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs font-bold cursor-pointer"
                     >
                       Stop
                     </button>
@@ -554,12 +554,12 @@ export default function ComprehensiveAgriculturalDashboard() {
             {/* DIRECT CONTACT NUMBERS & VEHICLE DETAILS */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               
-              <div className="p-6 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-md space-y-4">
+              <div className="p-6 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg space-y-4">
                 <h4 className="text-xs font-bold text-stone-900 uppercase tracking-wide border-b border-stone-200 pb-2">
                   Direct People Contacts
                 </h4>
 
-                <div className="flex items-center justify-between p-3 rounded-xl bg-stone-50 border border-stone-200">
+                <div className="flex items-center justify-between p-3.5 rounded-xl bg-stone-50 border border-stone-200">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-emerald-100 text-[#166534] flex items-center justify-center font-bold text-xs">
                       F
@@ -571,13 +571,13 @@ export default function ComprehensiveAgriculturalDashboard() {
                   </div>
                   <a
                     href={`tel:${farmerPhone.replace(/\s+/g, '')}`}
-                    className="px-3 py-1.5 rounded-lg bg-white border border-stone-300 text-xs font-semibold text-stone-700 hover:bg-stone-50 shadow-xs"
+                    className="px-3.5 py-1.5 rounded-full bg-white border border-stone-300 text-xs font-semibold text-stone-700 hover:bg-stone-50 shadow-xs"
                   >
                     Call Farmer
                   </a>
                 </div>
 
-                <div className="flex items-center justify-between p-3 rounded-xl bg-stone-50 border border-stone-200">
+                <div className="flex items-center justify-between p-3.5 rounded-xl bg-stone-50 border border-stone-200">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs">
                       D
@@ -589,7 +589,7 @@ export default function ComprehensiveAgriculturalDashboard() {
                   </div>
                   <a
                     href={`tel:${driverPhone.replace(/\s+/g, '')}`}
-                    className="px-3 py-1.5 rounded-lg bg-white border border-stone-300 text-xs font-semibold text-stone-700 hover:bg-stone-50 shadow-xs"
+                    className="px-3.5 py-1.5 rounded-full bg-white border border-stone-300 text-xs font-semibold text-stone-700 hover:bg-stone-50 shadow-xs"
                   >
                     Call Driver
                   </a>
@@ -597,12 +597,12 @@ export default function ComprehensiveAgriculturalDashboard() {
               </div>
 
               {/* Temperature History Area Chart */}
-              <div className="p-6 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-md space-y-3">
+              <div className="p-6 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs font-bold text-stone-900 uppercase tracking-wide">
                     Live Temperature Trend (°C)
                   </h4>
-                  <span className={`text-[11px] font-semibold px-2 py-0.5 rounded ${
+                  <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${
                     isHot ? 'bg-red-100 text-red-800' : 'bg-emerald-50 text-emerald-700'
                   }`}>
                     {isHot ? 'Thermal Drift Detected' : 'Safe Corridor Active'}
@@ -638,7 +638,7 @@ export default function ComprehensiveAgriculturalDashboard() {
         {/* ======================================================== */}
         {activeTab === 'Merchant' && (
           <div className="space-y-6">
-            <div className="p-6 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="p-6 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider block">
                   COMMERCIAL APMC PASSPORT
@@ -654,19 +654,19 @@ export default function ComprehensiveAgriculturalDashboard() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <div className="p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-md">
+              <div className="p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg">
                 <span className="text-xs font-semibold text-stone-500 block">BATCH VOLUME</span>
                 <div className="text-2xl font-bold text-stone-900 mt-1">180 Crates (3,600 kg)</div>
                 <div className="text-xs text-emerald-700 font-semibold mt-1">Estimated Value: ₹88,200</div>
               </div>
 
-              <div className="p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-md">
+              <div className="p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg">
                 <span className="text-xs font-semibold text-stone-500 block">THERMAL CUSTODY</span>
                 <div className="text-2xl font-bold text-[#166534] mt-1">{liveTemp.toFixed(1)}°C (Verified Safe)</div>
                 <div className="text-xs text-stone-500 mt-1">Ambient Outside: 31.7°C</div>
               </div>
 
-              <div className="p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-md">
+              <div className="p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg">
                 <span className="text-xs font-semibold text-stone-500 block">DIRECT FARMER</span>
                 <div className="text-lg font-bold text-stone-900 mt-1">{farmerName}</div>
                 <div className="text-xs text-stone-500 mt-1">{farmerPhone}</div>
@@ -681,19 +681,19 @@ export default function ComprehensiveAgriculturalDashboard() {
         {activeTab === 'Driver' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-              <div className="p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-md">
+              <div className="p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg">
                 <span className="text-xs font-semibold text-stone-500 block">CURRENT SPEED</span>
                 <div className="text-3xl font-extrabold text-stone-900 mt-1">{liveSpeed} km/h</div>
                 <div className="text-xs text-emerald-700 font-semibold mt-1">Safe Highway Speed</div>
               </div>
 
-              <div className="p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-md">
+              <div className="p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg">
                 <span className="text-xs font-semibold text-stone-500 block">CARGO TEMPERATURE</span>
                 <div className="text-3xl font-extrabold text-[#166534] mt-1">{liveTemp.toFixed(1)}°C</div>
                 <div className="text-xs text-stone-500 mt-1">Autonomous Cooler: ACTIVE</div>
               </div>
 
-              <div className="p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-md">
+              <div className="p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg">
                 <span className="text-xs font-semibold text-stone-500 block">FARMER ASSIGNED</span>
                 <div className="text-lg font-bold text-stone-900 mt-1">{farmerName}</div>
                 <div className="text-xs text-stone-500 mt-1">{farmerPhone}</div>
@@ -702,7 +702,7 @@ export default function ComprehensiveAgriculturalDashboard() {
 
             {/* Live Navigation Map + 3D Location Map */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              <div className="lg:col-span-8 p-6 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-md space-y-3">
+              <div className="lg:col-span-8 p-6 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg space-y-3">
                 <div className="flex items-center justify-between text-xs font-semibold">
                   <span className="text-stone-900">HIGHWAY ROUTE: ANANTAPUR ➔ KURNOOL APMC MANDI</span>
                   <span className="text-emerald-700 font-bold">{liveDistance} km Traveled</span>
@@ -719,7 +719,7 @@ export default function ComprehensiveAgriculturalDashboard() {
                 )}
               </div>
 
-              <div className="lg:col-span-4 p-6 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-md flex flex-col items-center justify-center text-center space-y-4">
+              <div className="lg:col-span-4 p-6 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg flex flex-col items-center justify-center text-center space-y-4">
                 <span className="text-xs font-bold text-stone-900 uppercase">Interactive GPS Node</span>
                 <RealLocationMapCard
                   location="Kurnool Highway (NH 44, KM 42)"
@@ -737,7 +737,7 @@ export default function ComprehensiveAgriculturalDashboard() {
         {/* ======================================================== */}
         {activeTab === 'Voice' && (
           <div className="space-y-6 max-w-3xl mx-auto">
-            <div className="p-8 rounded-3xl bg-white/95 backdrop-blur-md border border-white/40 shadow-xl text-center space-y-6">
+            <div className="p-8 rounded-3xl bg-white/95 backdrop-blur-md border border-white/40 shadow-2xl text-center space-y-6">
               <div className="w-18 h-18 rounded-full bg-emerald-50 border-2 border-[#166534] flex items-center justify-center mx-auto text-[#166534] shadow-sm">
                 <Mic className={`w-8 h-8 ${isSpeaking ? 'animate-pulse' : ''}`} />
               </div>
@@ -752,10 +752,10 @@ export default function ComprehensiveAgriculturalDashboard() {
               </div>
 
               {/* Language Selector */}
-              <div className="inline-flex p-1 bg-stone-100 rounded-xl text-xs font-semibold">
+              <div className="inline-flex p-1 bg-stone-100 rounded-full text-xs font-semibold">
                 <button
                   onClick={() => setVoiceLang('te')}
-                  className={`px-4 py-2 rounded-lg cursor-pointer ${
+                  className={`px-5 py-2 rounded-full cursor-pointer ${
                     voiceLang === 'te' ? 'bg-[#166534] text-white shadow-xs' : 'text-stone-700'
                   }`}
                 >
@@ -763,7 +763,7 @@ export default function ComprehensiveAgriculturalDashboard() {
                 </button>
                 <button
                   onClick={() => setVoiceLang('hi')}
-                  className={`px-4 py-2 rounded-lg cursor-pointer ${
+                  className={`px-5 py-2 rounded-full cursor-pointer ${
                     voiceLang === 'hi' ? 'bg-[#166534] text-white shadow-xs' : 'text-stone-700'
                   }`}
                 >
@@ -771,7 +771,7 @@ export default function ComprehensiveAgriculturalDashboard() {
                 </button>
                 <button
                   onClick={() => setVoiceLang('en')}
-                  className={`px-4 py-2 rounded-lg cursor-pointer ${
+                  className={`px-5 py-2 rounded-full cursor-pointer ${
                     voiceLang === 'en' ? 'bg-[#166534] text-white shadow-xs' : 'text-stone-700'
                   }`}
                 >
@@ -795,7 +795,7 @@ export default function ComprehensiveAgriculturalDashboard() {
               <div className="flex gap-3 justify-center">
                 <button
                   onClick={() => handlePlayVoice(isHot ? 'TEMP_SPIKE_AUTONOMOUS_FIX' : 'TRANSIT_SAFE')}
-                  className="px-8 py-3.5 rounded-xl bg-[#166534] hover:bg-[#15803d] text-white text-xs font-bold cursor-pointer transition-all shadow-sm flex items-center gap-2"
+                  className="px-8 py-3.5 rounded-full bg-[#166534] hover:bg-[#15803d] text-white text-xs font-bold cursor-pointer transition-all shadow-md flex items-center gap-2"
                 >
                   <PhoneCall className="w-4 h-4" />
                   <span>{isSpeaking ? 'Speaking Message Aloud...' : '▶ Start Voice Call Demo'}</span>
@@ -804,7 +804,7 @@ export default function ComprehensiveAgriculturalDashboard() {
                 {isSpeaking && (
                   <button
                     onClick={handleStopVoice}
-                    className="px-6 py-3.5 rounded-xl bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs font-bold cursor-pointer"
+                    className="px-6 py-3.5 rounded-full bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs font-bold cursor-pointer"
                   >
                     Stop
                   </button>
@@ -826,14 +826,14 @@ export default function ComprehensiveAgriculturalDashboard() {
                 {!cropImage ? (
                   <div
                     onClick={() => fileRef.current?.click()}
-                    className="border-2 border-dashed border-white/40 hover:border-emerald-500 rounded-2xl p-10 flex flex-col items-center justify-center text-center cursor-pointer transition-colors bg-white/95 backdrop-blur-md min-h-[260px] shadow-md"
+                    className="border-2 border-dashed border-white/40 hover:border-emerald-500 rounded-3xl p-10 flex flex-col items-center justify-center text-center cursor-pointer transition-colors bg-white/95 backdrop-blur-md min-h-[260px] shadow-lg"
                   >
                     <Upload className="w-8 h-8 text-stone-400 mb-2" />
                     <h4 className="text-sm font-bold text-stone-900">Upload 3MP Camera Leaf Image</h4>
                     <p className="text-xs text-stone-500 mt-1">From camera or phone</p>
                   </div>
                 ) : (
-                  <div className="p-4 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-md space-y-3">
+                  <div className="p-4 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg space-y-3">
                     <img src={cropImage} alt="Crop sample" className="w-full max-h-56 object-contain rounded-xl bg-stone-900" />
                     <div className="flex gap-2">
                       <button
@@ -856,7 +856,7 @@ export default function ComprehensiveAgriculturalDashboard() {
 
               <div className="md:col-span-7">
                 {diagnosis ? (
-                  <div className="p-6 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-md space-y-4">
+                  <div className="p-6 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg space-y-4">
                     <div className="flex justify-between items-center border-b border-stone-200 pb-3">
                       <div>
                         <span className="text-xs font-bold text-emerald-800 uppercase">IDENTIFIED CROP DISEASE</span>
@@ -884,7 +884,7 @@ export default function ComprehensiveAgriculturalDashboard() {
                     </div>
                   </div>
                 ) : (
-                  <div className="p-10 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 text-center flex flex-col items-center justify-center min-h-[260px] shadow-md">
+                  <div className="p-10 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 text-center flex flex-col items-center justify-center min-h-[260px] shadow-lg">
                     <span className="text-4xl mb-2">🍃</span>
                     <h4 className="text-sm font-bold text-stone-900">AI Plant Pathology Ready</h4>
                     <p className="text-xs text-stone-500 mt-1 max-w-xs">Upload a leaf photo to quantify surface damage and hear prescriptions.</p>
@@ -898,7 +898,7 @@ export default function ComprehensiveAgriculturalDashboard() {
       </main>
 
       {/* FOOTER */}
-      <footer className="relative z-10 mt-16 bg-black/40 backdrop-blur-xl border-t border-white/20 py-6 px-4 sm:px-8 text-xs text-white/70">
+      <footer className="relative z-10 mt-16 bg-black/50 backdrop-blur-xl border-t border-white/20 py-6 px-4 sm:px-8 text-xs text-white/75">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div>COLD SHIELD // PHYSICAL DEMO BOX &amp; LIVE VIDEO PLATFORM</div>
           <Link href="/" className="text-[#bef264] hover:underline font-bold">
