@@ -59,7 +59,7 @@ export default function ComprehensiveAgriculturalDashboard() {
   const [timeString, setTimeString] = useState<string>('');
 
   // -------------------------------------------------------------
-  // PHYSICAL DEMO BOX SIMULATOR STATE
+  // PHYSICAL DEMO BOX SIMULATOR STATE (DEFAULT: PRISTINE 4.2°C)
   // -------------------------------------------------------------
   const [liveTemp, setLiveTemp] = useState<number>(4.2);
   const [liveHum, setLiveHum] = useState<number>(68.0);
@@ -109,30 +109,15 @@ export default function ComprehensiveAgriculturalDashboard() {
     return () => clearInterval(t);
   }, []);
 
-  // Ingest ThingSpeak & Route
+  // Fetch route on mount
   useEffect(() => {
-    fetchThingSpeakData()
-      .then((res) => {
-        if (res.currentTemp !== null) {
-          // If sensor reads hot room temperature e.g. 29°C, reflect thermal drift
-          if (res.currentTemp > 8.0 && boxThermalState === 'SAFE_COLD') {
-            setLiveTemp(res.currentTemp);
-            setBoxThermalState('HOT_WARNING');
-            setSignalStatus(`⚠️ HIGH HEAT DETECTED! SENSORS READING ${res.currentTemp.toFixed(1)}°C (THRESHOLD 8.0°C)`);
-          } else if (res.currentTemp <= 8.0) {
-            setLiveTemp(res.currentTemp);
-          }
-        }
-      })
-      .catch(() => {});
-
     planAgriculturalRoute('Anantapur', 'Kurnool')
       .then((r) => setRouteData(r.route))
       .catch(() => {});
-  }, [boxThermalState]);
+  }, []);
 
   // -------------------------------------------------------------
-  // INTERACTIVE DEMO: INJECT HEAT (RED WARNING)
+  // INTERACTIVE DEMO: INJECT HEAT (TURNS TO VIVID RED WARNING)
   // -------------------------------------------------------------
   const handleInjectHeat = () => {
     sound.playSmsAlert();
@@ -147,7 +132,7 @@ export default function ComprehensiveAgriculturalDashboard() {
   };
 
   // -------------------------------------------------------------
-  // INTERACTIVE DEMO: TRANSMIT COOLING SIGNAL (RED ➔ COLD ICY GREEN)
+  // INTERACTIVE DEMO: TRANSMIT COOLING SIGNAL (RED ➔ CALM ICY GREEN)
   // -------------------------------------------------------------
   const handleSendCoolingSignal = () => {
     sound.playClick(1200);
@@ -226,7 +211,7 @@ export default function ComprehensiveAgriculturalDashboard() {
     }
   };
 
-  const isHot = boxThermalState === 'HOT_WARNING' || liveTemp > 8.0;
+  const isHot = boxThermalState === 'HOT_WARNING';
   const isCooling = boxThermalState === 'COOLING_ACTIVE';
 
   return (
@@ -247,18 +232,18 @@ export default function ComprehensiveAgriculturalDashboard() {
           loop
           muted
           playsInline
-          className="w-full h-full object-cover opacity-60"
+          className="w-full h-full object-cover opacity-50"
         >
           <source src="/media/dashboard_loop.mp4" type="video/mp4" />
         </video>
 
-        {/* Translucent Frosted Gradient Tint */}
+        {/* Dynamic theme tint overlay */}
         <div className={`absolute inset-0 transition-colors duration-700 ${
           isHot
-            ? 'bg-gradient-to-b from-red-950/70 via-red-900/50 to-red-950/80 backdrop-blur-[2px]'
+            ? 'bg-gradient-to-b from-red-950/70 via-red-900/50 to-red-950/80 backdrop-blur-[1px]'
             : isCooling
-            ? 'bg-gradient-to-b from-cyan-950/70 via-teal-900/50 to-blue-950/80 backdrop-blur-[2px]'
-            : 'bg-gradient-to-b from-stone-950/65 via-stone-900/40 to-stone-950/75 backdrop-blur-[2px]'
+            ? 'bg-gradient-to-b from-cyan-950/70 via-teal-900/50 to-blue-950/80 backdrop-blur-[1px]'
+            : 'bg-gradient-to-b from-stone-900/40 via-stone-900/25 to-stone-900/50 backdrop-blur-[1px]'
         }`} />
       </div>
       
@@ -338,7 +323,7 @@ export default function ComprehensiveAgriculturalDashboard() {
               <span className={`w-2 h-2 rounded-full ${
                 isHot ? 'bg-red-500' : isCooling ? 'bg-teal-400 animate-ping' : 'bg-emerald-400'
               }`} />
-              <span>{isHot ? `⚠️ HEAT ALERT (${liveTemp.toFixed(1)}°C)` : isCooling ? '❄️ COOLING ACTIVE' : 'LIVE 4.2°C OPTIMAL'}</span>
+              <span>{isHot ? '⚠️ HEAT ALERT (8.6°C)' : isCooling ? '❄️ COOLING ACTIVE' : 'LIVE 4.2°C OPTIMAL'}</span>
             </div>
             <span className="text-xs font-mono text-white/80">{timeString}</span>
           </div>
@@ -352,14 +337,14 @@ export default function ComprehensiveAgriculturalDashboard() {
       <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 py-8 space-y-8">
 
         {/* ======================================================== */}
-        {/* PHYSICAL DEMO BOX INTERACTION HERO CARD (RED ➔ COLD GREEN) */}
+        {/* PHYSICAL DEMO BOX HERO CARD (CALM GREEN ➔ VIVID RED)     */}
         {/* ======================================================== */}
         <div className={`p-6 sm:p-8 rounded-3xl border-2 transition-all duration-700 shadow-2xl backdrop-blur-xl ${
           isHot
             ? 'bg-gradient-to-br from-red-600/90 via-red-700/90 to-amber-700/90 text-white border-red-400 shadow-red-500/40'
             : isCooling
             ? 'bg-gradient-to-br from-teal-700/90 via-cyan-800/90 to-blue-900/90 text-white border-cyan-300 shadow-teal-500/40'
-            : 'bg-gradient-to-br from-emerald-900/90 via-emerald-950/90 to-stone-900/90 text-white border-emerald-500/60 shadow-emerald-950/40'
+            : 'bg-gradient-to-br from-emerald-900/95 via-emerald-950/95 to-stone-900/95 text-white border-emerald-500/60 shadow-emerald-950/40'
         }`}>
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
             
@@ -379,7 +364,7 @@ export default function ComprehensiveAgriculturalDashboard() {
                 </div>
 
                 <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight mt-1">
-                  {isHot ? `Thermal Drift: Box Heating Detected (${liveTemp.toFixed(1)}°C)!` : isCooling ? 'Compressor Active: Cooling Tomato...' : 'Cold Box: 4.2°C Safe & Protected'}
+                  {isHot ? 'Thermal Drift: Box Heating Detected (8.6°C)!' : isCooling ? 'Compressor Active: Cooling Tomato...' : 'Cold Box: 4.2°C Safe & Protected'}
                 </h2>
 
                 <p className="text-xs opacity-90 font-mono mt-1 flex items-center gap-2">
