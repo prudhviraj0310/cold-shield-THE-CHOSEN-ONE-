@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import {
   ResponsiveContainer,
@@ -17,37 +17,32 @@ import {
   Thermometer,
   Truck,
   PhoneCall,
-  Zap,
   Volume2,
   Mic,
   Camera,
   Upload,
   Trash2,
   Navigation,
-  BarChart3,
-  Cpu,
-  Radio,
+  MapPin,
   Clock,
   Sparkles,
-  MapPin,
+  Phone,
+  User,
   CheckCircle2,
-  AlertTriangle,
-  Activity,
-  Gauge,
-  Satellite,
-  Wifi,
-  Layers,
-  PhoneForwarded,
-  Share2,
-  TrendingDown,
-  RefreshCw,
+  AlertCircle,
+  Sun,
+  Droplets,
+  HeartPulse,
+  Leaf,
+  Store,
+  ChevronRight,
 } from 'lucide-react';
 import { sound } from '@/lib/audio';
 import { COMMODITIES, INDIAN_STATES } from '@/config/api';
-import { fetchThingSpeakData, ColdChainReading } from '@/services/thingspeak';
+import { fetchThingSpeakData } from '@/services/thingspeak';
 import { diagnoseCropImage, DiagnosisData } from '@/services/cropDoctor';
 import { fetchMarketPrices, MarketAnalysis } from '@/services/marketPrices';
-import { planAgriculturalRoute, RouteData, TravelAdvisory } from '@/services/routePlanner';
+import { planAgriculturalRoute, RouteData } from '@/services/routePlanner';
 import {
   speakFarmerAudio,
   stopFarmerAudio,
@@ -55,139 +50,103 @@ import {
   VoiceLanguage,
 } from '@/services/voiceAssistant';
 
-export default function SuperAliveOperationsDashboard() {
-  const [activeRole, setActiveRole] = useState<'Farmer' | 'Merchant' | 'Driver' | 'LiveCall' | 'CropDoctor'>('Farmer');
+export default function HumanAgriculturalDashboard() {
+  const [activeTab, setActiveTab] = useState<'Farmer' | 'Merchant' | 'Driver' | 'Voice' | 'CropDoctor'>('Farmer');
   const [timeString, setTimeString] = useState<string>('');
-  const [packetCount, setPacketCount] = useState<number>(1420);
 
-  // Live Micro-fluctuating telemetry (Creates real living heartbeat)
-  const [baseTemp, setBaseTemp] = useState<number>(4.2);
+  // Live dynamic temperature with natural breathing
   const [liveTemp, setLiveTemp] = useState<number>(4.2);
   const [liveHum, setLiveHum] = useState<number>(68.0);
   const [liveSpeed, setLiveSpeed] = useState<number>(52.4);
   const [liveDistance, setLiveDistance] = useState<number>(128.4);
-  const [isSimulatedSpike, setIsSimulatedSpike] = useState<boolean>(false);
-  const [isCompressorPumping, setIsCompressorPumping] = useState<boolean>(true);
+  const [isHeatSpike, setIsHeatSpike] = useState<boolean>(false);
 
-  // Live Packet Ingestion Stream
-  const [livePackets, setLivePackets] = useState<string[]>([
-    '● [00:22:15] PKT#1417 | DHT11: 4.21°C | RH: 68.1% | CRC: 0x9A (OK)',
-    '● [00:22:17] PKT#1418 | GPS: 15.8281°N, 78.0373°E | SPD: 52.4 km/h | SATS: 9',
-    '● [00:22:19] PKT#1419 | AI_EDGE: Compressor PWM 76% | Temp Delta: -0.02°C',
-    '● [00:22:21] PKT#1420 | TELEPHONY_GW: Voice Server Active on Port 5060',
-  ]);
+  // Contacts
+  const farmerName = 'Ramesh Reddy';
+  const farmerPhone = '+91 94401 55667';
+  const driverName = 'Suresh Kumar';
+  const driverPhone = '+91 98480 11223';
+  const truckNumber = 'AP-04-TX-2048 (Reefer Cold Van)';
 
-  // Phone numbers
-  const farmerPhone = '+91 94401 55667 (Ramesh Reddy)';
-  const driverPhone = '+91 98480 11223 (Suresh Kumar - AP-04-TX-2048)';
-  const merchantPhone = '+91 91234 56789 (Kurnool APMC Mandi)';
-
-  // Voice Call State
+  // Voice Assistant
   const [voiceLang, setVoiceLang] = useState<VoiceLanguage>('te');
-  const [isCalling, setIsCalling] = useState<boolean>(false);
-  const [activeCallText, setActiveCallText] = useState<string>('');
-  const [callStatus, setCallStatus] = useState<string>('Line Idle');
+  const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+  const [spokenText, setSpokenText] = useState<string>('');
 
-  // Crop Doctor State
+  // Crop Doctor
   const [cropImage, setCropImage] = useState<string | null>(null);
   const [diagnosis, setDiagnosis] = useState<DiagnosisData | null>(null);
   const [diagLoading, setDiagLoading] = useState<boolean>(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Route State
+  // Route
   const [routeData, setRouteData] = useState<RouteData | null>(null);
 
-  // Telemetry chart buffer
-  const [chartHistory, setChartHistory] = useState([
-    { time: '14:20', inside: 4.2, outside: 31.5 },
-    { time: '14:21', inside: 4.1, outside: 31.6 },
-    { time: '14:22', inside: 4.3, outside: 31.7 },
-    { time: '14:23', inside: 4.2, outside: 31.7 },
-    { time: '14:24', inside: 4.2, outside: 31.8 },
+  // Chart data
+  const [tempTrend, setTempTrend] = useState([
+    { time: '11:00 AM', temp: 4.1, ambient: 29.5 },
+    { time: '12:00 PM', temp: 4.2, ambient: 31.0 },
+    { time: '01:00 PM', temp: 4.3, ambient: 32.2 },
+    { time: '02:00 PM', temp: 4.2, ambient: 31.7 },
+    { time: '03:00 PM', temp: 4.2, ambient: 31.4 },
   ]);
 
-  // 1. Clock & Real-time Live Heartbeat
+  // Real-time clock & subtle organic breathing
   useEffect(() => {
-    const updateTime = () => setTimeString(new Date().toLocaleTimeString());
+    const updateTime = () => setTimeString(new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
     updateTime();
     const t = setInterval(updateTime, 1000);
     return () => clearInterval(t);
   }, []);
 
-  // 2. Real-time Live Sensor Jitter / Packet Ingestion (Every 1.8s)
+  // Organic micro-breathing (Feels real and live)
   useEffect(() => {
     const interval = setInterval(() => {
-      setPacketCount((p) => p + 1);
-
-      // Micro-jitter to feel alive
-      const deltaTemp = (Math.random() * 0.08 - 0.04);
-      const deltaHum = (Math.random() * 0.4 - 0.2);
-      const deltaSpd = (Math.random() * 0.8 - 0.4);
-
-      if (isSimulatedSpike) {
-        setLiveTemp((t) => Math.min(8.6, +(8.4 + deltaTemp).toFixed(2)));
+      const jitter = (Math.random() * 0.06 - 0.03);
+      if (isHeatSpike) {
+        setLiveTemp(+(8.4 + jitter).toFixed(1));
       } else {
-        setLiveTemp((t) => +(4.2 + deltaTemp).toFixed(2));
+        setLiveTemp(+(4.2 + jitter).toFixed(1));
       }
-
-      setLiveHum((h) => +(68.0 + deltaHum).toFixed(1));
-      setLiveSpeed((s) => +(52.4 + deltaSpd).toFixed(1));
-      setLiveDistance((d) => +(d + 0.02).toFixed(2));
-
-      // Append live packet
-      const nowStr = new Date().toLocaleTimeString();
-      const currentT = isSimulatedSpike ? 8.4 : 4.2;
-      const newPkt = `● [${nowStr}] PKT#${packetCount + 1} | T: ${(currentT + deltaTemp).toFixed(2)}°C | RH: ${(68.0 + deltaHum).toFixed(1)}% | SPD: ${(52.4 + deltaSpd).toFixed(1)} km/h | AI_CTRL: OK`;
-
-      setLivePackets((prev) => [newPkt, ...prev.slice(0, 5)]);
-
-      // Update chart history
-      setChartHistory((prev) => {
-        const last = prev.slice(-10);
-        return [...last, { time: nowStr.slice(0, 5), inside: +(currentT + deltaTemp).toFixed(1), outside: 31.7 }];
-      });
-    }, 1800);
+      setLiveHum(+(68.0 + (Math.random() * 0.4 - 0.2)).toFixed(0));
+      setLiveSpeed(+(52.4 + (Math.random() * 0.6 - 0.3)).toFixed(1));
+      setLiveDistance((d) => +(d + 0.01).toFixed(1));
+    }, 2000);
 
     return () => clearInterval(interval);
-  }, [isSimulatedSpike, packetCount]);
+  }, [isHeatSpike]);
 
-  // 3. Ingest real ThingSpeak if live
+  // Ingest ThingSpeak
   useEffect(() => {
     fetchThingSpeakData()
       .then((res) => {
-        if (res.currentTemp !== null) setBaseTemp(res.currentTemp);
+        if (res.currentTemp !== null) setLiveTemp(res.currentTemp);
       })
       .catch(() => {});
-  }, []);
 
-  // 4. Route Init
-  useEffect(() => {
     planAgriculturalRoute('Anantapur', 'Kurnool')
       .then((r) => setRouteData(r.route))
       .catch(() => {});
   }, []);
 
-  // Voice call trigger
-  const handleDialLiveCall = (scenarioKey: keyof typeof CALL_SCENARIOS = 'TRANSIT_SAFE') => {
+  // Play voice call
+  const handlePlayVoice = (scenarioKey: keyof typeof CALL_SCENARIOS = 'TRANSIT_SAFE') => {
     const scenario = CALL_SCENARIOS[scenarioKey];
     let text = scenario.script.telugu;
     if (voiceLang === 'hi') text = scenario.script.hindi;
     if (voiceLang === 'en') text = scenario.script.english;
 
-    setIsCalling(true);
-    setActiveCallText(text);
-    setCallStatus(`Connected to 1800-COLD-FARM (${voiceLang.toUpperCase()})`);
+    setIsSpeaking(true);
+    setSpokenText(text);
 
     speakFarmerAudio(text, voiceLang, () => {
-      setIsCalling(false);
-      setCallStatus('Call Completed');
+      setIsSpeaking(false);
     });
   };
 
-  const handleHangup = () => {
+  const handleStopVoice = () => {
     stopFarmerAudio();
-    setIsCalling(false);
-    setCallStatus('Call Disconnected');
+    setIsSpeaking(false);
   };
 
   // Crop diagnosis
@@ -215,474 +174,463 @@ export default function SuperAliveOperationsDashboard() {
     }
   };
 
-  const isWarning = liveTemp > 8.0;
-
   return (
-    <div className="min-h-screen bg-[#0d1117] text-[#e6edf3] font-sans antialiased selection:bg-emerald-500 selection:text-black">
+    <div className="min-h-screen bg-[#f8f9fa] text-[#1c1917] font-sans antialiased">
       
       {/* ========================================================== */}
-      {/* TOP MISSION CONTROL HEADER (DEEPLY ALIVE)                   */}
+      {/* WARM, CLEAN AGRICULTURAL HEADER                            */}
       {/* ========================================================== */}
-      <header className="sticky top-0 z-50 bg-[#161b22]/90 backdrop-blur-md border-b border-[#30363d] shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 shadow-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 h-18 flex items-center justify-between">
           
           <div className="flex items-center gap-4">
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 text-xs font-mono text-[#8b949e] hover:text-white transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-stone-100 hover:bg-stone-200 text-xs font-semibold text-stone-600 transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Story</span>
+              <span>Cinematic Story</span>
             </Link>
 
-            <div className="h-4 w-px bg-[#30363d]" />
+            <div className="h-5 w-px bg-stone-200" />
 
             <div className="flex items-center gap-2.5">
-              <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500" />
-              </span>
-              <span className="text-sm font-extrabold tracking-wider text-white font-mono uppercase">
-                COLD SHIELD // MISSION CONTROL
-              </span>
+              <div className="w-8 h-8 rounded-lg bg-[#166534] text-white flex items-center justify-center shadow-xs">
+                <Leaf className="w-4 h-4" />
+              </div>
+              <div>
+                <h1 className="text-sm font-bold text-stone-900 tracking-tight leading-none">
+                  Cold Shield
+                </h1>
+                <span className="text-[11px] text-stone-500 font-medium">
+                  Farm &amp; Cold-Chain Live Operations
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Role Navigator */}
-          <nav className="flex items-center gap-1 p-1 bg-[#21262d] rounded-lg text-xs font-mono border border-[#30363d]">
+          {/* Clean Role Navigation */}
+          <nav className="flex items-center gap-1.5 p-1 bg-stone-100 rounded-xl border border-stone-200 text-xs font-medium">
             {[
-              { id: 'Farmer', label: '👨‍🌾 Farmer View' },
-              { id: 'Merchant', label: '🏢 Merchant View' },
-              { id: 'Driver', label: '🚛 Driver View' },
-              { id: 'LiveCall', label: '📞 Live Voice Call' },
+              { id: 'Farmer', label: '👨‍🌾 Farmer' },
+              { id: 'Merchant', label: '🏢 Merchant' },
+              { id: 'Driver', label: '🚛 Driver' },
+              { id: 'Voice', label: '🎙️ Voice Assistant' },
               { id: 'CropDoctor', label: '🍃 Crop Doctor' },
-            ].map((role) => (
+            ].map((tab) => (
               <button
-                key={role.id}
+                key={tab.id}
                 onClick={() => {
                   sound.playClick(900);
-                  setActiveRole(role.id as any);
+                  setActiveTab(tab.id as any);
                 }}
-                className={`px-3 py-1.5 rounded font-bold cursor-pointer transition-all ${
-                  activeRole === role.id
-                    ? 'bg-emerald-600 text-white shadow-md'
-                    : 'text-[#8b949e] hover:text-white hover:bg-[#30363d]'
+                className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  activeTab === tab.id
+                    ? 'bg-[#166534] text-white font-bold shadow-xs'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60'
                 }`}
               >
-                {role.label}
+                {tab.label}
               </button>
             ))}
           </nav>
 
-          {/* Live Ingestion Ticker */}
-          <div className="hidden sm:flex items-center gap-3">
-            <div className="flex items-center gap-2 px-2.5 py-1 rounded bg-[#21262d] border border-[#30363d] text-[11px] font-mono text-emerald-400">
-              <Activity className="w-3.5 h-3.5 animate-pulse text-emerald-400" />
-              <span>{packetCount} PKTS INGESTED</span>
+          {/* Real-time Live Badge */}
+          <div className="hidden sm:flex items-center gap-2.5">
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-[#166534] border border-emerald-200 text-xs font-semibold">
+              <span className="w-2 h-2 rounded-full bg-[#166534] animate-pulse" />
+              <span>LIVE SENSOR ACTIVE</span>
             </div>
-
-            <span className="px-2.5 py-1 rounded bg-[#238636]/20 text-[#3fb950] border border-[#238636]/40 text-xs font-mono font-bold">
-              {timeString || 'LIVE'}
-            </span>
+            <span className="text-xs font-mono text-stone-500">{timeString}</span>
           </div>
 
         </div>
       </header>
 
       {/* ========================================================== */}
-      {/* MAIN MISSION CONTROL CONTENT                               */}
+      {/* MAIN CONTAINER                                             */}
       {/* ========================================================== */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-8 py-8 space-y-8">
 
-        {/* TOP STATUS BAR: SENSOR HEARTBEAT & AUTONOMOUS AI ENGINE */}
-        <div className="p-4 rounded-xl bg-gradient-to-r from-[#161b22] via-[#21262d] to-[#161b22] border border-[#30363d] flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-md">
-          <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-lg bg-emerald-950 border border-emerald-700/50 flex items-center justify-center text-emerald-400">
-              <Radio className="w-5 h-5 animate-pulse" />
+        {/* HERO BANNER: SHIPMENT STATUS & QUICK DEMO TOGGLE */}
+        <div className="p-6 rounded-2xl bg-white border border-stone-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-[#166534]">
+              <Truck className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-white font-mono uppercase">
-                  ESP32 + NEO-6M GPS Ingestion Node (Channel #3474082)
-                </h3>
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-950 text-emerald-300 border border-emerald-800">
-                  9 SATELLITES LOCKED
+                <h2 className="text-base font-bold text-stone-900">
+                  Shipment #JRN-2048 • 180 Crates Fresh Tomatoes
+                </h2>
+                <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">
+                  In Transit
                 </span>
               </div>
-              <p className="text-xs text-[#8b949e] font-mono mt-0.5">
-                Real-time telemetry streaming at 1.8s intervals • Raspberry Pi AI Compressor Autonomous Controller Active
+              <p className="text-xs text-stone-500 mt-0.5">
+                Route: Anantapur Farm ➔ Kurnool APMC Mandi • Truck {truckNumber}
               </p>
             </div>
           </div>
 
-          {/* Quick Incident Simulation Toggle */}
-          <div className="flex items-center gap-2 font-mono text-xs">
-            <span className="text-[#8b949e] text-[11px]">HACKATHON DEMO:</span>
+          {/* Quick Demo Toggle */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-stone-500">Demo Test:</span>
             <button
               onClick={() => {
                 sound.playSmsAlert();
-                setIsSimulatedSpike(true);
+                setIsHeatSpike(true);
               }}
-              className={`px-3 py-1.5 rounded font-bold cursor-pointer transition-all ${
-                isSimulatedSpike
-                  ? 'bg-amber-600 text-white ring-2 ring-amber-400 shadow-lg'
-                  : 'bg-[#21262d] hover:bg-[#30363d] text-amber-400 border border-amber-800/40'
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                isHeatSpike
+                  ? 'bg-amber-600 text-white shadow-xs'
+                  : 'bg-stone-100 hover:bg-stone-200 text-stone-700'
               }`}
             >
-              ⚠ Simulate Heat Spike (8.4°C)
+              ⚠ Heat Rise (8.4°C)
             </button>
             <button
               onClick={() => {
                 sound.playClick(1000);
-                setIsSimulatedSpike(false);
+                setIsHeatSpike(false);
               }}
-              className={`px-3 py-1.5 rounded font-bold cursor-pointer transition-all ${
-                !isSimulatedSpike
-                  ? 'bg-emerald-600 text-white ring-2 ring-emerald-400 shadow-lg'
-                  : 'bg-[#21262d] hover:bg-[#30363d] text-emerald-400 border border-emerald-800/40'
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                !isHeatSpike
+                  ? 'bg-[#166534] text-white shadow-xs'
+                  : 'bg-stone-100 hover:bg-stone-200 text-stone-700'
               }`}
             >
-              ✓ Safe Auto-Regulate (4.2°C)
+              ✓ Safe (4.2°C)
             </button>
           </div>
         </div>
 
         {/* ======================================================== */}
-        {/* ROLE 1: FARMER VIEW (DYNAMIC, VIBRANT, REASSURING)       */}
+        {/* VIEW 1: FARMER PORTAL                                    */}
         {/* ======================================================== */}
-        {activeRole === 'Farmer' && (
+        {activeTab === 'Farmer' && (
           <div className="space-y-6">
             
-            {/* 4 GLOWING HERO CARDS */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* 4 BEAUTIFUL, WARM METRIC TILES */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               
-              {/* Card 1: Inside Temperature Gauge */}
-              <div className={`p-5 rounded-xl border transition-all duration-500 shadow-lg ${
-                isWarning
-                  ? 'bg-gradient-to-b from-amber-950/40 to-[#161b22] border-amber-600/60 shadow-amber-950/30'
-                  : 'bg-gradient-to-b from-emerald-950/40 to-[#161b22] border-emerald-600/60 shadow-emerald-950/30'
-              }`}>
-                <div className="flex items-center justify-between text-xs font-mono text-[#8b949e]">
-                  <span>INSIDE CARGO TEMP</span>
-                  <Thermometer className={`w-4 h-4 ${isWarning ? 'text-amber-400 animate-bounce' : 'text-emerald-400'}`} />
+              {/* Tile 1: Inside Cargo Temperature */}
+              <div className="p-6 rounded-2xl bg-white border border-stone-200 shadow-sm flex flex-col justify-between">
+                <div className="flex items-center justify-between text-xs font-semibold text-stone-500">
+                  <span>CARGO TEMPERATURE</span>
+                  <Thermometer className={`w-4 h-4 ${isHeatSpike ? 'text-amber-600' : 'text-[#166534]'}`} />
                 </div>
                 <div className="my-3">
-                  <div className={`text-4xl font-extrabold font-mono tracking-tight ${
-                    isWarning ? 'text-amber-400' : 'text-emerald-400'
+                  <div className={`text-4xl font-extrabold tracking-tight ${
+                    isHeatSpike ? 'text-amber-600' : 'text-[#166534]'
                   }`}>
-                    {liveTemp.toFixed(2)}°C
+                    {liveTemp.toFixed(1)}°C
                   </div>
                   <div className="flex items-center gap-1.5 mt-1.5">
-                    <span className={`w-2 h-2 rounded-full ${isWarning ? 'bg-amber-400 animate-ping' : 'bg-emerald-400'}`} />
-                    <span className="text-[11px] font-mono text-zinc-300">
-                      {isWarning ? 'AI Compensating Cooling...' : 'Optimal Safe Range (2°C–8°C)'}
+                    <span className={`w-2 h-2 rounded-full ${isHeatSpike ? 'bg-amber-500 animate-ping' : 'bg-emerald-500'}`} />
+                    <span className="text-xs font-semibold text-stone-700">
+                      {isHeatSpike ? 'AI Boosting Cooling' : 'Optimal Fresh Range'}
                     </span>
                   </div>
                 </div>
-                <div className="text-[10px] font-mono text-[#8b949e] border-t border-[#30363d] pt-2 flex justify-between">
-                  <span>Ambient Outside: 31.7°C</span>
-                  <span className="text-emerald-400">Δ -27.5°C</span>
+                <div className="text-xs text-stone-500 pt-2 border-t border-stone-100">
+                  Target: 2°C – 8°C • Outside: 31.7°C
                 </div>
               </div>
 
-              {/* Card 2: Freshness & Spoilage Index */}
-              <div className="p-5 rounded-xl bg-gradient-to-b from-[#1c2128] to-[#161b22] border border-[#30363d] shadow-lg">
-                <div className="flex items-center justify-between text-xs font-mono text-[#8b949e]">
+              {/* Tile 2: Fruit & Produce Freshness */}
+              <div className="p-6 rounded-2xl bg-white border border-stone-200 shadow-sm flex flex-col justify-between">
+                <div className="flex items-center justify-between text-xs font-semibold text-stone-500">
                   <span>PRODUCE FRESHNESS</span>
-                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
                 </div>
                 <div className="my-3">
-                  <div className="text-4xl font-extrabold font-mono text-white tracking-tight">
-                    {isWarning ? '89.2%' : '99.4%'}
+                  <div className="text-4xl font-extrabold text-stone-900 tracking-tight">
+                    {isHeatSpike ? '91.2%' : '99.4%'}
                   </div>
                   <div className="flex items-center gap-1.5 mt-1.5">
-                    <span className="w-2 h-2 rounded-full bg-blue-400" />
-                    <span className="text-[11px] font-mono text-zinc-300">
-                      Humidity: {liveHum.toFixed(1)}% RH (Optimal)
+                    <Droplets className="w-3.5 h-3.5 text-blue-500" />
+                    <span className="text-xs font-semibold text-stone-700">
+                      Humidity: {liveHum}% RH (Perfect)
                     </span>
                   </div>
                 </div>
-                <div className="text-[10px] font-mono text-[#8b949e] border-t border-[#30363d] pt-2 flex justify-between">
-                  <span>Zero Thermal Decay</span>
-                  <span className="text-emerald-400 font-bold">100% Salable</span>
+                <div className="text-xs text-stone-500 pt-2 border-t border-stone-100">
+                  Zero spoilage • Crisp &amp; Firm
                 </div>
               </div>
 
-              {/* Card 3: Live GPS Speed & Route */}
-              <div className="p-5 rounded-xl bg-gradient-to-b from-[#1c2128] to-[#161b22] border border-[#30363d] shadow-lg">
-                <div className="flex items-center justify-between text-xs font-mono text-[#8b949e]">
-                  <span>GPS TRANSIT (NEO-6M)</span>
-                  <Truck className="w-4 h-4 text-blue-400" />
+              {/* Tile 3: Live Transit Location */}
+              <div className="p-6 rounded-2xl bg-white border border-stone-200 shadow-sm flex flex-col justify-between">
+                <div className="flex items-center justify-between text-xs font-semibold text-stone-500">
+                  <span>CURRENT LOCATION</span>
+                  <MapPin className="w-4 h-4 text-blue-600" />
                 </div>
                 <div className="my-3">
-                  <div className="text-2xl font-extrabold font-mono text-white truncate">
-                    Kurnool Hwy
+                  <div className="text-2xl font-bold text-stone-900 truncate">
+                    Kurnool Highway
                   </div>
                   <div className="flex items-center gap-1.5 mt-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                    <span className="text-[11px] font-mono text-emerald-400 font-bold">
-                      {liveSpeed.toFixed(1)} km/h • Smooth Transit
+                    <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
+                      Speed: {liveSpeed} km/h • On Highway
                     </span>
                   </div>
                 </div>
-                <div className="text-[10px] font-mono text-[#8b949e] border-t border-[#30363d] pt-2 flex justify-between">
-                  <span>Lat: 15.8281°N</span>
-                  <span>Lon: 78.0373°E</span>
+                <div className="text-xs text-stone-500 pt-2 border-t border-stone-100">
+                  128 km completed of 180 km
                 </div>
               </div>
 
-              {/* Card 4: Estimated Mandi Arrival */}
-              <div className="p-5 rounded-xl bg-gradient-to-b from-[#1c2128] to-[#161b22] border border-[#30363d] shadow-lg">
-                <div className="flex items-center justify-between text-xs font-mono text-[#8b949e]">
-                  <span>DESTINATION ARRIVAL</span>
-                  <Clock className="w-4 h-4 text-purple-400" />
+              {/* Tile 4: Estimated Arrival */}
+              <div className="p-6 rounded-2xl bg-white border border-stone-200 shadow-sm flex flex-col justify-between">
+                <div className="flex items-center justify-between text-xs font-semibold text-stone-500">
+                  <span>ESTIMATED ARRIVAL</span>
+                  <Clock className="w-4 h-4 text-purple-600" />
                 </div>
                 <div className="my-3">
-                  <div className="text-4xl font-extrabold font-mono text-white tracking-tight">
+                  <div className="text-4xl font-extrabold text-stone-900 tracking-tight">
                     4:00 PM
                   </div>
                   <div className="flex items-center gap-1.5 mt-1.5">
-                    <span className="w-2 h-2 rounded-full bg-purple-400" />
-                    <span className="text-[11px] font-mono text-zinc-300">
-                      {liveDistance.toFixed(1)} km / 180 km Done
+                    <span className="text-xs font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded">
+                      Today on Schedule
                     </span>
                   </div>
                 </div>
-                <div className="text-[10px] font-mono text-[#8b949e] border-t border-[#30363d] pt-2 flex justify-between">
-                  <span>Kurnool Mandi Gate #2</span>
-                  <span className="text-purple-400 font-bold">On Schedule</span>
+                <div className="text-xs text-stone-500 pt-2 border-t border-stone-100">
+                  Kurnool Mandi APMC Yard
                 </div>
               </div>
 
             </div>
 
-            {/* LIVE FARMER VOICE HOTLINE + PACKET STREAM ROW */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-              
-              {/* Farmer Voice Hotline Interactive Station */}
-              <div className="lg:col-span-7 p-6 rounded-xl bg-gradient-to-br from-[#161b22] to-[#21262d] border border-[#30363d] shadow-xl flex flex-col justify-between space-y-4">
-                <div>
-                  <div className="flex items-center justify-between border-b border-[#30363d] pb-3">
-                    <div className="flex items-center gap-2">
-                      <Volume2 className="w-5 h-5 text-emerald-400 animate-pulse" />
-                      <h4 className="text-sm font-bold font-mono text-white uppercase">
-                        Illiterate Farmer Voice Hotline (1800-COLD-FARM)
-                      </h4>
-                    </div>
-                    
-                    {/* Language Pills */}
-                    <div className="flex gap-1 bg-[#161b22] p-1 rounded-lg border border-[#30363d] text-xs font-mono">
-                      <button
-                        onClick={() => setVoiceLang('te')}
-                        className={`px-2.5 py-1 rounded cursor-pointer font-bold transition-all ${
-                          voiceLang === 'te' ? 'bg-emerald-600 text-white' : 'text-[#8b949e] hover:text-white'
-                        }`}
-                      >
-                        తెలుగు
-                      </button>
-                      <button
-                        onClick={() => setVoiceLang('hi')}
-                        className={`px-2.5 py-1 rounded cursor-pointer font-bold transition-all ${
-                          voiceLang === 'hi' ? 'bg-emerald-600 text-white' : 'text-[#8b949e] hover:text-white'
-                        }`}
-                      >
-                        हिंदी
-                      </button>
-                      <button
-                        onClick={() => setVoiceLang('en')}
-                        className={`px-2.5 py-1 rounded cursor-pointer font-bold transition-all ${
-                          voiceLang === 'en' ? 'bg-emerald-600 text-white' : 'text-[#8b949e] hover:text-white'
-                        }`}
-                      >
-                        ENG
-                      </button>
-                    </div>
+            {/* WARM FARMER VOICE ASSISTANT CARD */}
+            <div className="p-6 rounded-2xl bg-gradient-to-r from-emerald-50 via-white to-stone-50 border border-emerald-200 shadow-sm space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-emerald-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[#166534] text-white flex items-center justify-center shadow-xs">
+                    <Volume2 className="w-5 h-5" />
                   </div>
-
-                  <p className="text-xs text-[#8b949e] mt-3 leading-relaxed font-sans">
-                    Farmers don&apos;t need to read. When the farmer calls the Raspberry Pi voice gateway, it speaks comforting status updates aloud:
-                  </p>
-
-                  <div className="p-4 rounded-lg bg-[#0d1117] border border-[#30363d] my-3">
-                    <span className="text-[10px] font-mono text-emerald-400 block mb-1">
-                      NATIVE VOCAL REASSURANCE:
-                    </span>
-                    <p className="text-xs text-white leading-relaxed font-sans italic">
-                      &ldquo;{CALL_SCENARIOS.TRANSIT_SAFE.script[voiceLang === 'te' ? 'telugu' : voiceLang === 'hi' ? 'hindi' : 'english']}&rdquo;
+                  <div>
+                    <h3 className="text-sm font-bold text-stone-900">
+                      Farmer Voice Assistant (రైతు వాయిస్ అసిస్టెంట్)
+                    </h3>
+                    <p className="text-xs text-stone-500">
+                      Farmers don&apos;t need to read. Tap to hear real-time reassuring updates in your native language.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex gap-3 pt-2">
+                {/* Language Picker */}
+                <div className="flex items-center gap-1 p-1 bg-stone-100 rounded-lg text-xs font-semibold">
                   <button
-                    onClick={() => handleDialLiveCall(isWarning ? 'TEMP_SPIKE_AUTONOMOUS_FIX' : 'TRANSIT_SAFE')}
-                    className="flex-1 py-3.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-xs font-bold transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+                    onClick={() => setVoiceLang('te')}
+                    className={`px-3 py-1 rounded-md cursor-pointer transition-all ${
+                      voiceLang === 'te' ? 'bg-[#166534] text-white shadow-xs' : 'text-stone-600 hover:bg-stone-200'
+                    }`}
                   >
-                    <PhoneCall className={`w-4 h-4 ${isCalling ? 'animate-bounce' : ''}`} />
-                    <span>{isCalling ? '🎙️ Speaking Voice Audio...' : '▶ Dial Server & Speak Aloud'}</span>
+                    తెలుగు
+                  </button>
+                  <button
+                    onClick={() => setVoiceLang('hi')}
+                    className={`px-3 py-1 rounded-md cursor-pointer transition-all ${
+                      voiceLang === 'hi' ? 'bg-[#166534] text-white shadow-xs' : 'text-stone-600 hover:bg-stone-200'
+                    }`}
+                  >
+                    हिंदी
+                  </button>
+                  <button
+                    onClick={() => setVoiceLang('en')}
+                    className={`px-3 py-1 rounded-md cursor-pointer transition-all ${
+                      voiceLang === 'en' ? 'bg-[#166534] text-white shadow-xs' : 'text-stone-600 hover:bg-stone-200'
+                    }`}
+                  >
+                    English
+                  </button>
+                </div>
+              </div>
+
+              {/* Spoken Message & Action Button */}
+              <div className="p-4 rounded-xl bg-white border border-emerald-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-wide">
+                    Spoken Message Preview:
+                  </span>
+                  <p className="text-xs text-stone-800 leading-relaxed italic">
+                    &ldquo;{CALL_SCENARIOS.TRANSIT_SAFE.script[voiceLang === 'te' ? 'telugu' : voiceLang === 'hi' ? 'hindi' : 'english']}&rdquo;
+                  </p>
+                </div>
+
+                <div className="flex gap-2 shrink-0">
+                  <button
+                    onClick={() => handlePlayVoice(isHeatSpike ? 'TEMP_SPIKE_AUTONOMOUS_FIX' : 'TRANSIT_SAFE')}
+                    className="px-5 py-3 rounded-xl bg-[#166534] hover:bg-[#15803d] text-white text-xs font-bold transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+                  >
+                    <PhoneCall className={`w-4 h-4 ${isSpeaking ? 'animate-bounce' : ''}`} />
+                    <span>{isSpeaking ? 'Speaking Aloud...' : '▶ Listen in Voice'}</span>
                   </button>
 
-                  {isCalling && (
+                  {isSpeaking && (
                     <button
-                      onClick={handleHangup}
-                      className="px-5 py-3.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-mono text-xs font-bold cursor-pointer"
+                      onClick={handleStopVoice}
+                      className="px-4 py-3 rounded-xl bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs font-bold cursor-pointer"
                     >
-                      Disconnect
+                      Stop
                     </button>
                   )}
                 </div>
               </div>
-
-              {/* Live Live Packet Stream & Real Telemetry Feed */}
-              <div className="lg:col-span-5 p-6 rounded-xl bg-[#161b22] border border-[#30363d] shadow-xl flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between border-b border-[#30363d] pb-2 mb-3">
-                    <div className="flex items-center gap-2 text-xs font-mono text-emerald-400 font-bold">
-                      <Activity className="w-4 h-4 animate-spin" />
-                      <span>LIVE TELEMETRY PACKET STREAM</span>
-                    </div>
-                    <span className="text-[10px] font-mono text-[#8b949e]">UART2 @ 9600 BAUD</span>
-                  </div>
-
-                  <div className="space-y-2 font-mono text-[11px]">
-                    {livePackets.map((pkt, idx) => (
-                      <div
-                        key={idx}
-                        className={`p-2 rounded border leading-tight ${
-                          idx === 0
-                            ? 'bg-emerald-950/40 border-emerald-700/50 text-emerald-300 font-bold'
-                            : 'bg-[#0d1117] border-[#30363d] text-[#8b949e]'
-                        }`}
-                      >
-                        {pkt}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t border-[#30363d] grid grid-cols-2 gap-3 text-xs font-mono">
-                  <div className="p-2.5 rounded bg-[#0d1117] border border-[#30363d]">
-                    <span className="text-[#8b949e] text-[10px] block">FARMER CONTACT</span>
-                    <span className="font-bold text-white text-[11px] truncate block">+91 94401 55667</span>
-                  </div>
-                  <div className="p-2.5 rounded bg-[#0d1117] border border-[#30363d]">
-                    <span className="text-[#8b949e] text-[10px] block">DRIVER CONTACT</span>
-                    <span className="font-bold text-white text-[11px] truncate block">+91 98480 11223</span>
-                  </div>
-                </div>
-              </div>
-
             </div>
 
-            {/* LIVE REAL-TIME TELEMETRY GRAPH */}
-            <div className="p-6 rounded-xl bg-[#161b22] border border-[#30363d] shadow-xl">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h4 className="text-xs font-bold font-mono text-white uppercase">
-                    Continuous Thermal Corridor Ingestion (Live Graph)
-                  </h4>
-                  <span className="text-[11px] text-[#8b949e] font-mono">Real-time sensor curve updating dynamically</span>
+            {/* DIRECT CONTACT NUMBERS & VEHICLE DETAILS */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              <div className="p-6 rounded-2xl bg-white border border-stone-200 shadow-sm space-y-4">
+                <h4 className="text-xs font-bold text-stone-900 uppercase tracking-wide border-b border-stone-100 pb-2">
+                  Direct People Contacts
+                </h4>
+
+                <div className="flex items-center justify-between p-3 rounded-xl bg-stone-50 border border-stone-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-emerald-100 text-[#166534] flex items-center justify-center font-bold text-xs">
+                      F
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-stone-900">{farmerName} (Farmer)</div>
+                      <div className="text-[11px] text-stone-500">{farmerPhone}</div>
+                    </div>
+                  </div>
+                  <a
+                    href={`tel:${farmerPhone.replace(/\s+/g, '')}`}
+                    className="px-3 py-1.5 rounded-lg bg-white border border-stone-300 text-xs font-semibold text-stone-700 hover:bg-stone-50 shadow-xs"
+                  >
+                    Call Farmer
+                  </a>
                 </div>
-                <div className="flex items-center gap-3 text-xs font-mono">
-                  <div className="flex items-center gap-1.5 text-emerald-400">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                    <span>Inside Cargo ({liveTemp.toFixed(1)}°C)</span>
+
+                <div className="flex items-center justify-between p-3 rounded-xl bg-stone-50 border border-stone-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs">
+                      D
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-stone-900">{driverName} (Driver)</div>
+                      <div className="text-[11px] text-stone-500">{driverPhone}</div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5 text-[#8b949e]">
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-                    <span>Outside (31.7°C)</span>
-                  </div>
+                  <a
+                    href={`tel:${driverPhone.replace(/\s+/g, '')}`}
+                    className="px-3 py-1.5 rounded-lg bg-white border border-stone-300 text-xs font-semibold text-stone-700 hover:bg-stone-50 shadow-xs"
+                  >
+                    Call Driver
+                  </a>
                 </div>
               </div>
 
-              <div className="w-full h-48">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartHistory}>
-                    <defs>
-                      <linearGradient id="liveGreen" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#30363d" vertical={false} />
-                    <XAxis dataKey="time" stroke="#8b949e" fontSize={10} tickLine={false} />
-                    <YAxis stroke="#8b949e" fontSize={10} domain={[0, 35]} tickLine={false} />
-                    <Tooltip contentStyle={{ backgroundColor: '#161b22', borderColor: '#30363d', color: '#fff' }} />
-                    <Area type="monotone" dataKey="inside" stroke="#10b981" strokeWidth={2.5} fill="url(#liveGreen)" />
-                    <Area type="monotone" dataKey="outside" stroke="#f59e0b" strokeWidth={1} strokeDasharray="3 3" fill="none" />
-                  </AreaChart>
-                </ResponsiveContainer>
+              {/* Temperature History Area Chart */}
+              <div className="p-6 rounded-2xl bg-white border border-stone-200 shadow-sm space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold text-stone-900 uppercase tracking-wide">
+                    Live Temperature Trend (°C)
+                  </h4>
+                  <span className="text-[11px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded">
+                    Safe Range Maintained
+                  </span>
+                </div>
+
+                <div className="w-full h-40">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={tempTrend}>
+                      <defs>
+                        <linearGradient id="warmGreen" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#166534" stopOpacity={0.25} />
+                          <stop offset="95%" stopColor="#166534" stopOpacity={0.0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+                      <XAxis dataKey="time" stroke="#a8a29e" fontSize={10} tickLine={false} />
+                      <YAxis stroke="#a8a29e" fontSize={10} domain={[0, 40]} tickLine={false} />
+                      <Tooltip />
+                      <Area type="monotone" dataKey="temp" stroke="#166534" strokeWidth={2.5} fill="url(#warmGreen)" name="Cargo Temp (°C)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
+
             </div>
 
           </div>
         )}
 
         {/* ======================================================== */}
-        {/* ROLE 2: MERCHANT VIEW                                    */}
+        {/* VIEW 2: MERCHANT PORTAL                                  */}
         {/* ======================================================== */}
-        {activeRole === 'Merchant' && (
+        {activeTab === 'Merchant' && (
           <div className="space-y-6">
-            <div className="p-5 rounded-xl bg-[#161b22] border border-[#30363d] flex items-center justify-between">
+            <div className="p-6 rounded-2xl bg-white border border-stone-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <span className="text-xs font-mono text-emerald-400 font-bold block mb-0.5">WHOLESALE MERCHANT AUDIT</span>
-                <h3 className="text-base font-bold font-mono text-white">Batch Passport #JRN-2048 (Tomato Grade-A)</h3>
+                <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider block">
+                  COMMERCIAL APMC PASSPORT
+                </span>
+                <h3 className="text-lg font-bold text-stone-900 mt-0.5">
+                  Batch #JRN-2048 • Grade-A Tomato Inspection
+                </h3>
               </div>
-              <div className="text-xs font-mono text-right">
-                <span className="text-[#8b949e] block">Mandi Valuation</span>
-                <span className="text-emerald-400 font-extrabold text-lg">₹2,450 / Quintal</span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono">
-              <div className="p-4 rounded-xl bg-[#161b22] border border-[#30363d]">
-                <span className="text-[#8b949e] block mb-1">TOTAL CARGO LOAD</span>
-                <div className="text-lg font-bold text-white">180 Crates (3,600 kg)</div>
-                <div className="text-emerald-400 mt-1">Est. Batch Value: ₹88,200</div>
-              </div>
-
-              <div className="p-4 rounded-xl bg-[#161b22] border border-[#30363d]">
-                <span className="text-[#8b949e] block mb-1">LIVE THERMAL INTEGRITY</span>
-                <div className="text-lg font-bold text-emerald-400">{liveTemp.toFixed(1)}°C (Verified Safe)</div>
-                <div className="text-[#8b949e] mt-1">Zero Spoilage Risk</div>
-              </div>
-
-              <div className="p-4 rounded-xl bg-[#161b22] border border-[#30363d]">
-                <span className="text-[#8b949e] block mb-1">FARMER CONTACT</span>
-                <div className="text-lg font-bold text-white">{farmerPhone}</div>
-                <div className="text-[#8b949e] mt-1">Direct Grower Traceability</div>
+              <div className="text-right">
+                <span className="text-xs text-stone-500 block">Today&apos;s Mandi Price</span>
+                <span className="text-2xl font-extrabold text-[#166534]">₹2,450 / Quintal</span>
               </div>
             </div>
 
-            {/* Audit Table */}
-            <div className="p-5 rounded-xl bg-[#161b22] border border-[#30363d] overflow-x-auto">
-              <table className="w-full text-left text-xs font-mono border-collapse">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+              <div className="p-5 rounded-2xl bg-white border border-stone-200 shadow-sm">
+                <span className="text-xs font-semibold text-stone-500 block">BATCH VOLUME</span>
+                <div className="text-2xl font-bold text-stone-900 mt-1">180 Crates (3,600 kg)</div>
+                <div className="text-xs text-emerald-700 font-semibold mt-1">Estimated Value: ₹88,200</div>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-white border border-stone-200 shadow-sm">
+                <span className="text-xs font-semibold text-stone-500 block">THERMAL CUSTODY</span>
+                <div className="text-2xl font-bold text-[#166534] mt-1">{liveTemp.toFixed(1)}°C (Verified Safe)</div>
+                <div className="text-xs text-stone-500 mt-1">Ambient Outside: 31.7°C</div>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-white border border-stone-200 shadow-sm">
+                <span className="text-xs font-semibold text-stone-500 block">DIRECT FARMER</span>
+                <div className="text-lg font-bold text-stone-900 mt-1">{farmerName}</div>
+                <div className="text-xs text-stone-500 mt-1">{farmerPhone}</div>
+              </div>
+            </div>
+
+            {/* Quality Inspection Table */}
+            <div className="p-6 rounded-2xl bg-white border border-stone-200 shadow-sm overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="border-b border-[#30363d] text-[#8b949e]">
-                    <th className="py-2.5 px-3">CHECKPOINT</th>
-                    <th className="py-2.5 px-3">TELEMETRY READING</th>
-                    <th className="py-2.5 px-3">SAFE SPECIFICATION</th>
-                    <th className="py-2.5 px-3 text-right">AUDIT STATUS</th>
+                  <tr className="border-b border-stone-200 text-stone-500 font-semibold">
+                    <th className="py-3 px-4">INSPECTION CHECKPOINT</th>
+                    <th className="py-3 px-4">LIVE SENSOR READING</th>
+                    <th className="py-3 px-4">SAFE SPECIFICATION</th>
+                    <th className="py-3 px-4 text-right">AUDIT RESULT</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#30363d]/50">
+                <tbody className="divide-y divide-stone-100 font-medium">
                   <tr>
-                    <td className="py-2.5 px-3 font-bold text-white">Inside Core Temp</td>
-                    <td className="py-2.5 px-3 text-emerald-400 font-bold">{liveTemp.toFixed(2)}°C</td>
-                    <td className="py-2.5 px-3 text-[#8b949e]">2.0°C – 8.0°C</td>
-                    <td className="py-2.5 px-3 text-right text-emerald-400 font-bold">✅ VERIFIED PASS</td>
+                    <td className="py-3 px-4 text-stone-900 font-bold">Inside Cargo Temperature</td>
+                    <td className="py-3 px-4 text-[#166534] font-bold">{liveTemp.toFixed(1)}°C</td>
+                    <td className="py-3 px-4 text-stone-600">2.0°C – 8.0°C</td>
+                    <td className="py-3 px-4 text-right text-emerald-700 font-bold">✅ PASS</td>
                   </tr>
                   <tr>
-                    <td className="py-2.5 px-3 font-bold text-white">Relative Humidity</td>
-                    <td className="py-2.5 px-3 text-blue-400 font-bold">{liveHum.toFixed(1)}% RH</td>
-                    <td className="py-2.5 px-3 text-[#8b949e]">70% – 95%</td>
-                    <td className="py-2.5 px-3 text-right text-emerald-400 font-bold">✅ VERIFIED PASS</td>
+                    <td className="py-3 px-4 text-stone-900 font-bold">Relative Humidity</td>
+                    <td className="py-3 px-4 text-blue-700 font-bold">{liveHum}% RH</td>
+                    <td className="py-3 px-4 text-stone-600">70% – 95%</td>
+                    <td className="py-3 px-4 text-right text-emerald-700 font-bold">✅ PASS</td>
                   </tr>
                   <tr>
-                    <td className="py-2.5 px-3 font-bold text-white">Reefer Truck GPS</td>
-                    <td className="py-2.5 px-3 text-white">15.8281°N, 78.0373°E</td>
-                    <td className="py-2.5 px-3 text-[#8b949e]">Speed: {liveSpeed.toFixed(1)} km/h</td>
-                    <td className="py-2.5 px-3 text-right text-emerald-400 font-bold">✅ ON TIME</td>
+                    <td className="py-3 px-4 text-stone-900 font-bold">Delivery Driver &amp; Truck</td>
+                    <td className="py-3 px-4 text-stone-700">{driverName} ({driverPhone})</td>
+                    <td className="py-3 px-4 text-stone-600">{truckNumber}</td>
+                    <td className="py-3 px-4 text-right text-emerald-700 font-bold">✅ ON TIME</td>
                   </tr>
                 </tbody>
               </table>
@@ -691,43 +639,44 @@ export default function SuperAliveOperationsDashboard() {
         )}
 
         {/* ======================================================== */}
-        {/* ROLE 3: DRIVER / RIDER VIEW                              */}
+        {/* VIEW 3: DRIVER / RIDER PORTAL                            */}
         {/* ======================================================== */}
-        {activeRole === 'Driver' && (
+        {activeTab === 'Driver' && (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-mono">
-              <div className="p-4 rounded-xl bg-[#161b22] border border-[#30363d]">
-                <span className="text-[#8b949e] block mb-1">LIVE SPEEDOMETER (NEO-6M)</span>
-                <div className="text-3xl font-extrabold text-white">{liveSpeed.toFixed(1)} km/h</div>
-                <div className="text-emerald-400 mt-1">Safe Highway Speed Limit (60 km/h)</div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+              <div className="p-5 rounded-2xl bg-white border border-stone-200 shadow-sm">
+                <span className="text-xs font-semibold text-stone-500 block">CURRENT SPEED</span>
+                <div className="text-3xl font-extrabold text-stone-900 mt-1">{liveSpeed} km/h</div>
+                <div className="text-xs text-emerald-700 font-semibold mt-1">Safe Highway Speed</div>
               </div>
 
-              <div className="p-4 rounded-xl bg-[#161b22] border border-[#30363d]">
-                <span className="text-[#8b949e] block mb-1">CARGO BAY TEMPERATURE</span>
-                <div className="text-3xl font-extrabold text-emerald-400">{liveTemp.toFixed(1)}°C</div>
-                <div className="text-zinc-400 mt-1">AI Cooler Autonomous: ACTIVE</div>
+              <div className="p-5 rounded-2xl bg-white border border-stone-200 shadow-sm">
+                <span className="text-xs font-semibold text-stone-500 block">CARGO TEMPERATURE</span>
+                <div className="text-3xl font-extrabold text-[#166534] mt-1">{liveTemp.toFixed(1)}°C</div>
+                <div className="text-xs text-stone-500 mt-1">Autonomous Cooler: ACTIVE</div>
               </div>
 
-              <div className="p-4 rounded-xl bg-[#161b22] border border-[#30363d]">
-                <span className="text-[#8b949e] block mb-1">DESTINATION ETA</span>
-                <div className="text-3xl font-extrabold text-purple-400">4:00 PM</div>
-                <div className="text-zinc-400 mt-1">Kurnool APMC Gate #2</div>
+              <div className="p-5 rounded-2xl bg-white border border-stone-200 shadow-sm">
+                <span className="text-xs font-semibold text-stone-500 block">FARMER ASSIGNED</span>
+                <div className="text-lg font-bold text-stone-900 mt-1">{farmerName}</div>
+                <div className="text-xs text-stone-500 mt-1">{farmerPhone}</div>
               </div>
             </div>
 
+            {/* Live Navigation Map */}
             {routeData?.mapEmbedUrl && (
-              <div className="p-4 rounded-xl bg-[#161b22] border border-[#30363d] space-y-3">
-                <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="font-bold text-white">LIVE ROUTE NAVIGATION (ANANTAPUR → KURNOOL MANDI)</span>
-                  <span className="text-emerald-400 font-bold">{liveDistance.toFixed(1)} km traveled</span>
+              <div className="p-6 rounded-2xl bg-white border border-stone-200 shadow-sm space-y-3">
+                <div className="flex items-center justify-between text-xs font-semibold">
+                  <span className="text-stone-900">HIGHWAY ROUTE: ANANTAPUR ➔ KURNOOL APMC MANDI</span>
+                  <span className="text-emerald-700 font-bold">{liveDistance} km Traveled</span>
                 </div>
                 <iframe
                   src={routeData.mapEmbedUrl}
                   width="100%"
-                  height="400"
-                  className="rounded border border-[#30363d]"
+                  height="420"
+                  className="rounded-xl border border-stone-200"
                   loading="lazy"
-                  title="Navigation"
+                  title="Driver Map"
                 />
               </div>
             )}
@@ -735,67 +684,90 @@ export default function SuperAliveOperationsDashboard() {
         )}
 
         {/* ======================================================== */}
-        {/* ROLE 4: LIVE VOICE CALL DEMO (HACKATHON DIALER)          */}
+        {/* VIEW 4: LIVE VOICE ASSISTANT DEMO                        */}
         {/* ======================================================== */}
-        {activeRole === 'LiveCall' && (
-          <div className="space-y-6">
-            <div className="p-6 rounded-xl bg-[#161b22] border border-[#30363d] text-center max-w-2xl mx-auto space-y-5">
-              <div className="w-16 h-16 rounded-full bg-emerald-950 border-2 border-emerald-500 flex items-center justify-center mx-auto text-emerald-400 text-2xl shadow-xl">
-                <PhoneCall className={isCalling ? 'animate-bounce' : ''} />
+        {activeTab === 'Voice' && (
+          <div className="space-y-6 max-w-3xl mx-auto">
+            <div className="p-8 rounded-3xl bg-white border border-stone-200 shadow-md text-center space-y-6">
+              
+              <div className="w-18 h-18 rounded-full bg-emerald-50 border-2 border-[#166534] flex items-center justify-center mx-auto text-[#166534] shadow-sm">
+                <Mic className={`w-8 h-8 ${isSpeaking ? 'animate-pulse' : ''}`} />
               </div>
 
               <div>
-                <h3 className="text-xl font-bold font-mono text-white">1800-COLD-FARM</h3>
-                <span className="text-xs font-mono text-emerald-400 font-bold">{callStatus}</span>
+                <h3 className="text-xl font-bold text-stone-900">
+                  Toll-Free Voice Assistant (1800-COLD-FARM)
+                </h3>
+                <p className="text-xs text-stone-500 mt-1">
+                  Reassures rural farmers who cannot read by speaking live status in Telugu, Hindi, or English.
+                </p>
               </div>
 
-              {/* Audio Waveform when active */}
-              {isCalling && (
-                <div className="flex items-center justify-center gap-1.5 h-10 py-1">
-                  {[4, 8, 12, 6, 10, 14, 8, 5].map((h, i) => (
-                    <span
-                      key={i}
-                      className="w-1.5 bg-emerald-400 rounded-full animate-pulse"
-                      style={{ height: `${h * 2}px`, animationDelay: `${i * 80}ms` }}
-                    />
-                  ))}
-                </div>
-              )}
+              {/* Language Selector */}
+              <div className="inline-flex p-1 bg-stone-100 rounded-xl text-xs font-semibold">
+                <button
+                  onClick={() => setVoiceLang('te')}
+                  className={`px-4 py-2 rounded-lg cursor-pointer ${
+                    voiceLang === 'te' ? 'bg-[#166534] text-white shadow-xs' : 'text-stone-700'
+                  }`}
+                >
+                  తెలుగు (Telugu)
+                </button>
+                <button
+                  onClick={() => setVoiceLang('hi')}
+                  className={`px-4 py-2 rounded-lg cursor-pointer ${
+                    voiceLang === 'hi' ? 'bg-[#166534] text-white shadow-xs' : 'text-stone-700'
+                  }`}
+                >
+                  हिंदी (Hindi)
+                </button>
+                <button
+                  onClick={() => setVoiceLang('en')}
+                  className={`px-4 py-2 rounded-lg cursor-pointer ${
+                    voiceLang === 'en' ? 'bg-[#166534] text-white shadow-xs' : 'text-stone-700'
+                  }`}
+                >
+                  English
+                </button>
+              </div>
 
-              {/* Live Spoken Transcript */}
-              <div className="p-4 rounded-lg bg-[#0d1117] border border-[#30363d] text-left text-xs font-mono space-y-1">
-                <span className="text-[#8b949e] text-[10px] block uppercase">Live Voice Output (Native Dialect):</span>
-                <p className="text-white font-sans leading-relaxed italic">
-                  {activeCallText || CALL_SCENARIOS.TRANSIT_SAFE.script[voiceLang === 'te' ? 'telugu' : voiceLang === 'hi' ? 'hindi' : 'english']}
+              {/* Live Audio Transcript Box */}
+              <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200 text-left space-y-2">
+                <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-wide">
+                  Live Spoken Message:
+                </span>
+                <p className="text-sm text-stone-800 leading-relaxed italic">
+                  &ldquo;{spokenText || CALL_SCENARIOS.TRANSIT_SAFE.script[voiceLang === 'te' ? 'telugu' : voiceLang === 'hi' ? 'hindi' : 'english']}&rdquo;
                 </p>
               </div>
 
               <div className="flex gap-3 justify-center">
                 <button
-                  onClick={() => handleDialLiveCall(isWarning ? 'TEMP_SPIKE_AUTONOMOUS_FIX' : 'TRANSIT_SAFE')}
-                  className="px-6 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-xs font-bold cursor-pointer transition-all shadow-lg flex items-center gap-2"
+                  onClick={() => handlePlayVoice(isHeatSpike ? 'TEMP_SPIKE_AUTONOMOUS_FIX' : 'TRANSIT_SAFE')}
+                  className="px-8 py-3.5 rounded-xl bg-[#166534] hover:bg-[#15803d] text-white text-xs font-bold cursor-pointer transition-all shadow-sm flex items-center gap-2"
                 >
-                  <Volume2 className="w-4 h-4" />
-                  <span>{isCalling ? 'Speaking on Call...' : '▶ Start Real Phone Call Demo'}</span>
+                  <PhoneCall className="w-4 h-4" />
+                  <span>{isSpeaking ? 'Speaking Message Aloud...' : '▶ Start Voice Call Demo'}</span>
                 </button>
 
-                {isCalling && (
+                {isSpeaking && (
                   <button
-                    onClick={handleHangup}
-                    className="px-5 py-3 rounded-lg bg-red-600 hover:bg-red-500 text-white font-mono text-xs font-bold cursor-pointer"
+                    onClick={handleStopVoice}
+                    className="px-6 py-3.5 rounded-xl bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs font-bold cursor-pointer"
                   >
-                    Hang Up
+                    Stop
                   </button>
                 )}
               </div>
+
             </div>
           </div>
         )}
 
         {/* ======================================================== */}
-        {/* ROLE 5: CROP DOCTOR (AI LEAF DAMAGE QUANTIFICATION)      */}
+        {/* VIEW 5: CROP DOCTOR (AI LEAF DAMAGE QUANTIFICATION)      */}
         {/* ======================================================== */}
-        {activeRole === 'CropDoctor' && (
+        {activeTab === 'CropDoctor' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
               
@@ -805,26 +777,26 @@ export default function SuperAliveOperationsDashboard() {
                 {!cropImage ? (
                   <div
                     onClick={() => fileRef.current?.click()}
-                    className="border-2 border-dashed border-[#30363d] hover:border-emerald-500 rounded-xl p-10 flex flex-col items-center justify-center text-center cursor-pointer transition-colors bg-[#161b22] min-h-[260px]"
+                    className="border-2 border-dashed border-stone-300 hover:border-emerald-500 rounded-2xl p-10 flex flex-col items-center justify-center text-center cursor-pointer transition-colors bg-white min-h-[260px]"
                   >
-                    <Upload className="w-8 h-8 text-[#8b949e] mb-2" />
-                    <h4 className="text-xs font-bold font-mono text-white">Upload 3MP Camera Leaf Image</h4>
-                    <p className="text-[11px] text-[#8b949e] mt-1">From ESP32-CAM or phone</p>
+                    <Upload className="w-8 h-8 text-stone-400 mb-2" />
+                    <h4 className="text-sm font-bold text-stone-900">Upload 3MP Camera Leaf Image</h4>
+                    <p className="text-xs text-stone-500 mt-1">From camera or phone</p>
                   </div>
                 ) : (
-                  <div className="p-4 rounded-xl bg-[#161b22] border border-[#30363d] space-y-3">
-                    <img src={cropImage} alt="Crop sample" className="w-full max-h-56 object-contain rounded bg-[#0d1117]" />
+                  <div className="p-4 rounded-2xl bg-white border border-stone-200 shadow-sm space-y-3">
+                    <img src={cropImage} alt="Crop sample" className="w-full max-h-56 object-contain rounded-xl bg-stone-900" />
                     <div className="flex gap-2">
                       <button
                         onClick={handleAnalyze}
                         disabled={diagLoading}
-                        className="flex-1 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-xs font-bold cursor-pointer"
+                        className="flex-1 py-2.5 rounded-xl bg-[#166534] hover:bg-[#15803d] text-white text-xs font-bold cursor-pointer"
                       >
-                        {diagLoading ? 'Calculating Surface Damage %...' : 'Analyze with Gemini AI'}
+                        {diagLoading ? 'Calculating Damage %...' : 'Analyze with Gemini AI'}
                       </button>
                       <button
                         onClick={() => { setCropImage(null); setDiagnosis(null); }}
-                        className="px-3 py-2.5 rounded-lg bg-[#21262d] text-white hover:bg-[#30363d] cursor-pointer"
+                        className="px-3 py-2.5 rounded-xl border border-stone-300 hover:bg-stone-100 text-stone-700 cursor-pointer"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -835,53 +807,55 @@ export default function SuperAliveOperationsDashboard() {
 
               <div className="md:col-span-7">
                 {diagnosis ? (
-                  <div className="p-5 rounded-xl bg-[#161b22] border border-[#30363d] space-y-4">
-                    <div className="flex justify-between items-center border-b border-[#30363d] pb-2">
+                  <div className="p-6 rounded-2xl bg-white border border-stone-200 shadow-sm space-y-4">
+                    <div className="flex justify-between items-center border-b border-stone-100 pb-3">
                       <div>
-                        <span className="text-[10px] font-mono text-emerald-400 uppercase">DIAGNOSED DISEASE</span>
-                        <h3 className="text-lg font-bold font-mono text-white">{diagnosis.disease_name}</h3>
+                        <span className="text-xs font-bold text-emerald-800 uppercase">IDENTIFIED CROP DISEASE</span>
+                        <h3 className="text-lg font-bold text-stone-900">{diagnosis.disease_name}</h3>
                       </div>
-                      <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-amber-950 text-amber-300 border border-amber-800">
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
                         {diagnosis.severity} Severity
                       </span>
                     </div>
 
-                    <div className="p-3.5 rounded bg-[#0d1117] border border-[#30363d] space-y-2">
-                      <div className="flex justify-between text-xs font-mono font-bold">
-                        <span className="text-white">SURFACE DAMAGE QUANTIFICATION:</span>
-                        <span className="text-amber-400">{diagnosis.leaf_damage_percentage}% DESTROYED / {diagnosis.healthy_tissue_percentage}% INTACT</span>
+                    {/* Damage % Bar */}
+                    <div className="p-4 rounded-xl bg-stone-50 border border-stone-200 space-y-2">
+                      <div className="flex justify-between text-xs font-bold">
+                        <span className="text-stone-900">LEAF DAMAGE SURFACE:</span>
+                        <span className="text-amber-800">{diagnosis.leaf_damage_percentage}% DESTROYED / {diagnosis.healthy_tissue_percentage}% INTACT</span>
                       </div>
                       
-                      <div className="w-full h-3 rounded-full bg-emerald-950 overflow-hidden flex">
-                        <div className="bg-red-500 h-full transition-all duration-700" style={{ width: `${diagnosis.leaf_damage_percentage}%` }} />
-                        <div className="bg-emerald-500 h-full transition-all duration-700" style={{ width: `${diagnosis.healthy_tissue_percentage}%` }} />
+                      <div className="w-full h-3.5 rounded-full bg-emerald-100 overflow-hidden flex">
+                        <div className="bg-amber-600 h-full" style={{ width: `${diagnosis.leaf_damage_percentage}%` }} />
+                        <div className="bg-[#166534] h-full" style={{ width: `${diagnosis.healthy_tissue_percentage}%` }} />
                       </div>
 
-                      <div className="text-[11px] font-mono text-[#8b949e]">
-                        Can crop be saved: <strong className="text-emerald-400">{diagnosis.can_be_saved ? '✅ YES (100% Recoverable)' : 'Urgent Action'}</strong>
+                      <div className="text-xs text-stone-600 pt-1">
+                        Can crop be saved: <strong className="text-[#166534]">{diagnosis.can_be_saved ? '✅ YES (100% Recoverable)' : 'Action Needed'}</strong>
                       </div>
                     </div>
 
-                    <div className="p-3.5 rounded bg-emerald-950/40 border border-emerald-800 space-y-2">
+                    {/* Spoken Advice in Telugu */}
+                    <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold font-mono text-emerald-300">SPOKEN PRESCRIPTION (TELUGU):</span>
+                        <span className="text-xs font-bold text-[#166534]">SPOKEN PRESCRIPTION (TELUGU):</span>
                         <button
                           onClick={() => speakFarmerAudio(diagnosis.farmer_voice_telugu || diagnosis.summary, 'te')}
-                          className="px-2.5 py-0.5 rounded bg-emerald-600 text-white text-[10px] font-bold cursor-pointer"
+                          className="px-3 py-1 rounded-lg bg-[#166534] text-white text-xs font-bold cursor-pointer"
                         >
                           ▶ Play Voice
                         </button>
                       </div>
-                      <p className="text-xs text-white font-sans leading-relaxed">
+                      <p className="text-xs text-stone-800 leading-relaxed font-sans">
                         {diagnosis.farmer_voice_telugu || diagnosis.summary}
                       </p>
                     </div>
                   </div>
                 ) : (
-                  <div className="p-8 rounded-xl bg-[#161b22] border border-[#30363d] text-center flex flex-col items-center justify-center min-h-[260px]">
-                    <span className="text-3xl mb-2">🍃</span>
-                    <h4 className="text-xs font-bold font-mono text-white uppercase">AI Plant Pathology Ready</h4>
-                    <p className="text-xs text-[#8b949e] mt-1">Upload a leaf photo to quantify surface damage.</p>
+                  <div className="p-10 rounded-2xl bg-stone-50 border border-stone-200 text-center flex flex-col items-center justify-center min-h-[260px]">
+                    <span className="text-4xl mb-2">🍃</span>
+                    <h4 className="text-sm font-bold text-stone-900">AI Plant Pathology Ready</h4>
+                    <p className="text-xs text-stone-500 mt-1 max-w-xs">Upload a leaf photo to quantify surface damage and hear prescriptions.</p>
                   </div>
                 )}
               </div>
@@ -893,10 +867,10 @@ export default function SuperAliveOperationsDashboard() {
       </main>
 
       {/* FOOTER */}
-      <footer className="mt-12 bg-[#161b22] border-t border-[#30363d] py-5 px-6 text-xs font-mono text-[#8b949e]">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-          <div>COLD SHIELD // MISSION CONTROL OPERATIONS PLATFORM</div>
-          <Link href="/" className="text-emerald-400 hover:underline font-semibold">
+      <footer className="mt-16 bg-white border-t border-stone-200 py-6 px-4 sm:px-8 text-xs text-stone-500">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div>COLD SHIELD // AGRICULTURAL COLD-CHAIN PLATFORM</div>
+          <Link href="/" className="text-[#166534] hover:underline font-semibold">
             ← Return to Cinematic Story
           </Link>
         </div>
