@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { API_CONFIG } from '@/config/api';
 import {
   TrendingUp,
   MapPin,
@@ -522,6 +523,28 @@ const PAN_INDIA_COMMODITIES: CommodityData[] = [
   },
 ];
 
+// Map our UI commodity labels to data.gov.in API commodity filter names
+const CROP_TO_API_COMMODITY: Record<string, string> = {
+  'Tomato (Hybrid Grade-A)': 'Tomato',
+  'Whole Dry Red Chilli (Teja/Byadgi)': 'Dry Chillies',
+  'Green Chilli (Spicy G4)': 'Green Chillies',
+  'Onion (Bellary Red Medium)': 'Onion',
+  'Mango (Banganapalle Export)': 'Mango (Raw-Loss pack)',
+};
+
+export interface LiveMandiRecord {
+  state: string;
+  district: string;
+  market: string;
+  commodity: string;
+  variety: string;
+  grade: string;
+  arrivalDate: string;
+  minPrice: number;
+  maxPrice: number;
+  modalPrice: number;
+}
+
 export function LiveMandiBoard() {
   const [selectedCropIndex, setSelectedCropIndex] = useState<number>(0);
   const [cargoQuintals, setCargoQuintals] = useState<number>(36); // 180 Crates = 36 Q
@@ -529,7 +552,76 @@ export function LiveMandiBoard() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [viewMode, setViewMode] = useState<'matrix' | 'cards'>('matrix');
 
+  // Live API state
+  const [liveRecords, setLiveRecords] = useState<LiveMandiRecord[]>([]);
+  const [liveLoading, setLiveLoading] = useState<boolean>(false);
+  const [liveError, setLiveError] = useState<string | null>(null);
+  const [liveTotal, setLiveTotal] = useState<number>(0);
+  const [liveStateFilter, setLiveStateFilter] = useState<string>('All');
+  const [liveSearchQuery, setLiveSearchQuery] = useState<string>('');
+
   const activeCrop = PAN_INDIA_COMMODITIES[selectedCropIndex];
+
+  // Fetch live mandi rates from data.gov.in
+  const fetchLiveRates = useCallback(async (cropName: string) => {
+    const apiCommodity = CROP_TO_API_COMMODITY[cropName] || 'Tomato';
+    const apiKey = API_CONFIG.dataGov.apiKey;
+    if (!apiKey) {
+      setLiveError('data.gov.in API key not configured');
+      return;
+    }
+    setLiveLoading(true);
+    setLiveError(null);
+    try {
+      const url = `${API_CONFIG.dataGov.baseUrl}?api-key=${apiKey}&format=json&limit=200&filters[commodity]=${encodeURIComponent(apiCommodity)}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`API returned ${res.status}`);
+      const data = await res.json();
+      const records: LiveMandiRecord[] = (data.records || []).map((r: any) => ({
+        state: r.state || '',
+        district: r.district || '',
+        market: r.market || '',
+        commodity: r.commodity || '',
+        variety: r.variety || '',
+        grade: r.grade || '',
+        arrivalDate: r.arrival_date || '',
+        minPrice: parseFloat(r.min_price || 0),
+        maxPrice: parseFloat(r.max_price || 0),
+        modalPrice: parseFloat(r.modal_price || 0),
+      }));
+      // Sort by modal price descending
+      records.sort((a, b) => b.modalPrice - a.modalPrice);
+      setLiveRecords(records);
+      setLiveTotal(data.total || records.length);
+    } catch (err: any) {
+      console.warn('Live mandi API failed:', err);
+      setLiveError(err.message || 'Failed to fetch live rates');
+    } finally {
+      setLiveLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchLiveRates(activeCrop.crop);
+  }, [activeCrop.crop, fetchLiveRates]);
+
+  // Filtered live records
+  const filteredLiveRecords = liveRecords.filter((r) => {
+    if (liveStateFilter !== 'All' && r.state !== liveStateFilter) return false;
+    if (liveSearchQuery) {
+      const q = liveSearchQuery.toLowerCase();
+      return r.state.toLowerCase().includes(q) || r.district.toLowerCase().includes(q) || r.market.toLowerCase().includes(q);
+    }
+    return true;
+  });
+
+  // Unique states from live data
+  const liveStates = Array.from(new Set(liveRecords.map((r) => r.state))).sort();
+
+  // Live stats
+  const liveHighest = liveRecords.length > 0 ? liveRecords[0].modalPrice : 0;
+  const liveLowest = liveRecords.length > 0 ? liveRecords[liveRecords.length - 1].modalPrice : 0;
+  const liveAvg = liveRecords.length > 0 ? Math.round(liveRecords.reduce((s, r) => s + r.modalPrice, 0) / liveRecords.length) : 0;
 
   // Calculate Net Profit across all Mandis for the selected crop & quantity
   const marketAnalysis = activeCrop.cities.map((m) => {
@@ -1028,6 +1120,178 @@ export function LiveMandiBoard() {
           })}
         </div>
       )}
+
+      {/* ========================================================== */}
+      {/* 5. 🔴 LIVE GOVERNMENT MANDI RATES (data.gov.in API)        */}
+      {/* ========================================================== */}
+      <div className="space-y-4">
+        
+        {/* Section Header */}
+        <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-red-600 via-orange-600 to-amber-500 text-white shadow-xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-white animate-ping" />
+                <span className="text-[10px] font-mono uppercase tracking-widest font-extrabold">🔴 LIVE API • data.gov.in • Ministry of Agriculture</span>
+              </div>
+              <h4 className="text-xl sm:text-2xl font-extrabold tracking-tight">
+                Real-Time Government Mandi Rates — All India
+              </h4>
+              <p className="text-xs text-white/90">
+                {liveTotal} mandis reporting for <strong>{CROP_TO_API_COMMODITY[activeCrop.crop] || activeCrop.crop}</strong> today • Updated every 30 min by Agmarknet
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              {liveRecords.length > 0 && (
+                <div className="flex gap-2 text-center">
+                  <div className="p-2.5 rounded-xl bg-white/20 backdrop-blur-md min-w-[80px]">
+                    <div className="text-[10px] font-mono uppercase text-white/80">Highest</div>
+                    <div className="text-sm font-extrabold font-mono">₹{liveHighest.toLocaleString('en-IN')}</div>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-white/20 backdrop-blur-md min-w-[80px]">
+                    <div className="text-[10px] font-mono uppercase text-white/80">Average</div>
+                    <div className="text-sm font-extrabold font-mono">₹{liveAvg.toLocaleString('en-IN')}</div>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-white/20 backdrop-blur-md min-w-[80px]">
+                    <div className="text-[10px] font-mono uppercase text-white/80">Lowest</div>
+                    <div className="text-sm font-extrabold font-mono">₹{liveLowest.toLocaleString('en-IN')}</div>
+                  </div>
+                </div>
+              )}
+              <button
+                onClick={() => fetchLiveRates(activeCrop.crop)}
+                disabled={liveLoading}
+                className="px-4 py-2.5 rounded-xl bg-white/25 hover:bg-white/35 text-white text-xs font-bold cursor-pointer backdrop-blur-md transition-all flex items-center gap-1.5 border border-white/30"
+              >
+                <Zap className={`w-3.5 h-3.5 ${liveLoading ? 'animate-spin' : ''}`} />
+                <span>{liveLoading ? 'Fetching...' : 'Refresh Live'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Live Filter Bar */}
+        <div className="flex flex-col sm:flex-row items-center gap-3 p-3.5 rounded-2xl bg-white/95 backdrop-blur-md border border-stone-200 shadow-sm">
+          <div className="relative flex-1 w-full">
+            <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={liveSearchQuery}
+              onChange={(e) => setLiveSearchQuery(e.target.value)}
+              placeholder="Search by state, district, or market name..."
+              className="w-full pl-9 pr-4 py-2 rounded-xl bg-stone-50 border border-stone-200 text-xs focus:outline-none focus:border-[#166534]"
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-1.5 text-xs font-bold">
+            <span className="text-stone-500 mr-1 text-[11px]">State:</span>
+            <button
+              onClick={() => setLiveStateFilter('All')}
+              className={`px-3 py-1.5 rounded-full transition-all cursor-pointer ${
+                liveStateFilter === 'All' ? 'bg-red-600 text-white shadow-xs' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+              }`}
+            >
+              All ({liveRecords.length})
+            </button>
+            {liveStates.slice(0, 12).map((st) => {
+              const count = liveRecords.filter((r) => r.state === st).length;
+              return (
+                <button
+                  key={st}
+                  onClick={() => setLiveStateFilter(st)}
+                  className={`px-3 py-1.5 rounded-full transition-all cursor-pointer ${
+                    liveStateFilter === st ? 'bg-red-600 text-white shadow-xs' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+                  }`}
+                >
+                  {st.length > 16 ? st.slice(0, 14) + '..' : st} ({count})
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Live Table */}
+        {liveLoading ? (
+          <div className="p-12 rounded-3xl bg-white/95 backdrop-blur-md border border-stone-200 shadow-lg text-center space-y-3">
+            <div className="w-10 h-10 mx-auto rounded-full border-4 border-red-600 border-t-transparent animate-spin" />
+            <p className="text-xs font-bold text-stone-700">Fetching live rates from Government Agmarknet API...</p>
+          </div>
+        ) : liveError ? (
+          <div className="p-8 rounded-3xl bg-red-50 border border-red-200 text-center space-y-2">
+            <p className="text-xs font-bold text-red-800">⚠️ {liveError}</p>
+            <button onClick={() => fetchLiveRates(activeCrop.crop)} className="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold cursor-pointer">Retry</button>
+          </div>
+        ) : filteredLiveRecords.length > 0 ? (
+          <div className="overflow-x-auto rounded-3xl border border-stone-200 bg-white/95 backdrop-blur-md shadow-lg">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="bg-gradient-to-r from-red-50 to-orange-50 border-b border-stone-200 text-[11px] font-extrabold uppercase font-mono text-stone-700">
+                  <th className="p-3.5">#</th>
+                  <th className="p-3.5">State</th>
+                  <th className="p-3.5">District</th>
+                  <th className="p-3.5">Market / Mandi</th>
+                  <th className="p-3.5">Variety</th>
+                  <th className="p-3.5">Min Price (₹/Q)</th>
+                  <th className="p-3.5">Max Price (₹/Q)</th>
+                  <th className="p-3.5">Modal Price (₹/Q)</th>
+                  <th className="p-3.5">Date</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-stone-100">
+                {filteredLiveRecords.slice(0, 50).map((r, idx) => {
+                  const isTop = idx === 0;
+                  return (
+                    <tr
+                      key={`${r.state}-${r.district}-${r.market}-${idx}`}
+                      className={`transition-colors hover:bg-stone-50 ${
+                        isTop ? 'bg-emerald-50/60 font-semibold' : ''
+                      }`}
+                    >
+                      <td className="p-3.5 font-mono text-stone-400">{idx + 1}</td>
+                      <td className="p-3.5">
+                        <span className="text-xs font-bold text-stone-900">{r.state}</span>
+                      </td>
+                      <td className="p-3.5 text-stone-700">{r.district}</td>
+                      <td className="p-3.5">
+                        <span className="text-xs font-semibold text-stone-900">{r.market}</span>
+                      </td>
+                      <td className="p-3.5">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 font-medium">
+                          {r.variety || 'Standard'}
+                        </span>
+                      </td>
+                      <td className="p-3.5 font-mono font-bold text-stone-700">₹{r.minPrice.toLocaleString('en-IN')}</td>
+                      <td className="p-3.5 font-mono font-bold text-stone-700">₹{r.maxPrice.toLocaleString('en-IN')}</td>
+                      <td className="p-3.5">
+                        <span className={`font-mono font-extrabold text-sm ${
+                          isTop ? 'text-[#166534]' : 'text-stone-900'
+                        }`}>
+                          ₹{r.modalPrice.toLocaleString('en-IN')}
+                        </span>
+                        {isTop && (
+                          <span className="ml-1.5 inline-block px-1.5 py-0.5 rounded-full text-[9px] font-extrabold bg-[#bef264] text-stone-950">
+                            #1 BEST
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-3.5 font-mono text-stone-500 text-[10px]">{r.arrivalDate}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            {filteredLiveRecords.length > 50 && (
+              <div className="p-3 text-center text-xs text-stone-500 border-t border-stone-200">
+                Showing top 50 of {filteredLiveRecords.length} mandis. Filter by state for a targeted view.
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="p-8 rounded-3xl bg-stone-50 border border-stone-200 text-center">
+            <p className="text-xs text-stone-500">No live records found for this filter combination.</p>
+          </div>
+        )}
+      </div>
 
     </div>
   );
