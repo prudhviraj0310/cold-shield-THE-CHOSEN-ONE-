@@ -59,7 +59,7 @@ export const InteractiveHighwayMap: React.FC<InteractiveHighwayMapProps> = ({
         {/* Action Controls */}
         <div className="flex items-center gap-2">
           <a
-            href="https://www.google.com/maps/dir/Anantapur,+Andhra+Pradesh/Kurnool,+Andhra+Pradesh"
+            href="https://www.google.com/maps/dir/Madanapalle+Institute+of+Technology+%26+Science,+Angallu,+Andhra+Pradesh/Madanapalle,+Andhra+Pradesh"
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => sound.playClick()}
@@ -119,7 +119,7 @@ export const InteractiveHighwayMap: React.FC<InteractiveHighwayMapProps> = ({
             <span>LAT/LON: {coordinates}</span>
           </div>
           <div className="text-stone-300 text-[9px]">
-            ELEVATION: 284m • HEADING: 034° NE
+            ELEVATION: 695m • HEADING: 034° NE
           </div>
         </div>
 
@@ -127,16 +127,16 @@ export const InteractiveHighwayMap: React.FC<InteractiveHighwayMapProps> = ({
         <div className="absolute bottom-3 inset-x-3 bg-white/95 backdrop-blur-md p-2.5 rounded-2xl border border-stone-200 shadow-xl pointer-events-auto">
           <div className="grid grid-cols-4 gap-2 text-center text-[10px] font-mono">
             <div className="p-1 rounded-xl bg-emerald-50 text-emerald-800 font-bold border border-emerald-200">
-              ✓ Anantapur (0 km)
+              ✓ MITS Campus (0 km)
             </div>
             <div className="p-1 rounded-xl bg-emerald-50 text-emerald-800 font-bold border border-emerald-200">
-              ✓ Gooty (60 km)
+              ✓ Angallu Hub (2 km)
             </div>
             <div className="p-1 rounded-xl bg-blue-50 text-blue-900 font-bold border border-blue-300 animate-pulse">
-              📍 Dhone Bypass (Current)
+              📍 Madanapalle APMC (Current)
             </div>
             <div className="p-1 rounded-xl bg-stone-100 text-stone-600 border border-stone-200">
-              ○ Kurnool APMC (180 km)
+              ○ Bengaluru KR Market (140 km)
             </div>
           </div>
         </div>
@@ -147,7 +147,7 @@ export const InteractiveHighwayMap: React.FC<InteractiveHighwayMapProps> = ({
       <div className="p-3 bg-stone-50 border-t border-stone-200 flex flex-wrap items-center justify-between gap-2 text-xs text-stone-600 px-4">
         <div className="flex items-center gap-1.5">
           <ShieldCheck className="w-4 h-4 text-emerald-700" />
-          <span>Cold-Chain Route Verified: Asphalt 4-Lane NH 44 (Zero Rough Shocks)</span>
+          <span>Cold-Chain Route Verified: Asphalt 4-Lane NH 42 / NH 44 (Zero Rough Shocks)</span>
         </div>
         <div className="flex items-center gap-1 font-mono text-emerald-800 font-bold">
           <Clock className="w-3.5 h-3.5" />

@@ -329,7 +329,7 @@ export const InteractiveFeaturePhone: React.FC<InteractiveFeaturePhoneProps> = (
                     {/* Live Telemetry Display on Phone Screen */}
                     <div className="text-[10px] leading-tight space-y-0.5 bg-[#8ea384]/40 p-1.5 rounded-xs border border-[#2d3a2b]/20">
                       <div>🌡️ CARGO TEMP: <strong>{liveTemp.toFixed(1)}°C (SAFE)</strong></div>
-                      <div>📍 LOC: <strong>Kurnool Highway (NH 44)</strong></div>
+                      <div>📍 LOC: <strong>MITS Campus (NH 42, Angallu)</strong></div>
                       <div>⏱️ MANDI ARRIVAL: <strong>4:00 PM</strong></div>
                     </div>
 

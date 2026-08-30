@@ -1269,18 +1269,18 @@ export default function ComprehensiveAgriculturalDashboard() {
                 <InteractiveHighwayMap
                   currentSpeed={liveSpeed}
                   distanceKm={liveDistance}
-                  totalDistanceKm={180}
-                  originName="Anantapur Farm Hub"
-                  destName="Kurnool APMC Wholesale Mandi"
-                  coordinates="15.8281° N, 78.0373° E"
+                  totalDistanceKm={140}
+                  originName="MITS College Campus (Angallu, Madanapalle)"
+                  destName="Bengaluru KR Market / Chennai Gateway"
+                  coordinates="13.6268° N, 78.4343° E"
                 />
               </div>
 
               <div className="lg:col-span-4 p-6 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg flex flex-col items-center justify-center text-center space-y-4">
                 <span className="text-xs font-bold text-stone-900 uppercase">Interactive GPS Node</span>
                 <RealLocationMapCard
-                  location="Kurnool Highway (NH 44, KM 42)"
-                  coordinates="15.8281° N, 78.0373° E"
+                  location="MITS College Campus (Angallu, Madanapalle)"
+                  coordinates="13.6268° N, 78.4343° E"
                   speed={liveSpeed}
                   distanceKm={liveDistance}
                 />
