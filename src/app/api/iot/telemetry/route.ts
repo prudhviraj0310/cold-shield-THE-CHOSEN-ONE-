@@ -15,11 +15,11 @@ export async function GET() {
       return NextResponse.json({
         temp: Number(data.temp),
         humidity: Number(data.humidity),
-        lat: Number(data.lat || 13.5560),
-        lon: Number(data.lon || 78.5010),
+        lat: Number(data.lat || 13.6268),
+        lon: Number(data.lon || 78.4343),
         speed: Number(data.speed || 0.0),
         status: data.status || 'PARKED',
-        location: data.location || 'Madanapalle Tomato APMC Yard',
+        location: data.location || 'MITS College Campus (Angallu, Madanapalle)',
         source: 'Raspberry Pi 4B Edge Hub (/dev/ttyUSB0 + /dev/ttyAMA0)',
         isLive: true,
       });
@@ -42,11 +42,11 @@ export async function GET() {
         return NextResponse.json({
           temp: Number(temp.toFixed(1)),
           humidity: isNaN(hum) ? 55.0 : Number(hum.toFixed(1)),
-          lat: 13.5560,
-          lon: 78.5010,
+          lat: 13.6268,
+          lon: 78.4343,
           speed: 0.0,
           status: 'PARKED',
-          location: 'Madanapalle Tomato APMC Yard',
+          location: 'MITS College Campus (Angallu, Madanapalle)',
           source: 'ThingSpeak IoT Cloud Channel #3474082',
           isLive: true,
           entryId: data.entry_id,
@@ -60,13 +60,13 @@ export async function GET() {
 
   // Fallback default
   return NextResponse.json({
-    temp: 29.9,
-    humidity: 53.4,
-    lat: 13.5560,
-    lon: 78.5010,
+    temp: 29.8,
+    humidity: 52.4,
+    lat: 13.6268,
+    lon: 78.4343,
     speed: 0.0,
     status: 'PARKED',
-    location: 'Madanapalle Tomato APMC Yard',
+    location: 'MITS College Campus (Angallu, Madanapalle)',
     source: 'Hardware Fallback Matrix',
     isLive: true,
   });

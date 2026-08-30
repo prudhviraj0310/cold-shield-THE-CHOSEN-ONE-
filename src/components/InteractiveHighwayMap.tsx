@@ -17,16 +17,16 @@ export const InteractiveHighwayMap: React.FC<InteractiveHighwayMapProps> = ({
   currentSpeed = 0.0,
   distanceKm = 42.4,
   totalDistanceKm = 140,
-  originName = 'Madanapalle Tomato APMC Yard (Asia Largest Mandi)',
+  originName = 'MITS College Campus (Angallu, Madanapalle)',
   destName = 'Bengaluru KR Market / Chennai Gateway',
-  coordinates = '13.5560° N, 78.5010° E',
+  coordinates = '13.6268° N, 78.4343° E',
 }) => {
   const [mapLayer, setMapLayer] = useState<'osm' | 'terrain' | 'hybrid'>('osm');
-  const [zoomLevel, setZoomLevel] = useState<number>(12);
+  const [zoomLevel, setZoomLevel] = useState<number>(14);
   const [isLiveTracking, setIsLiveTracking] = useState<boolean>(true);
 
-  // Madanapalle Tomato APMC Market Yard Bounding Box (Lat: 13.5560, Lon: 78.5010)
-  const osmEmbedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=78.40%2C13.50%2C78.60%2C13.62&layer=mapnik&marker=13.5560%2C78.5010`;
+  // MITS College Campus Angallu Madanapalle Bounding Box (Lat: 13.6268, Lon: 78.4343)
+  const osmEmbedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=78.4100%2C13.6100%2C78.4600%2C13.6450&layer=mapnik&marker=13.6268%2C78.4343`;
 
   const remainingKm = Math.max(0, totalDistanceKm - distanceKm);
   const progressPct = Math.min(100, Math.round((distanceKm / totalDistanceKm) * 100));
