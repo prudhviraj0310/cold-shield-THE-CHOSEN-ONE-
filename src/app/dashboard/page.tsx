@@ -387,7 +387,7 @@ export default function ComprehensiveAgriculturalDashboard() {
           </div>
 
           {/* Role Navigation Pills */}
-          <nav className="flex items-center gap-1.5 p-1 bg-white/10 rounded-full border border-white/20 text-xs font-semibold backdrop-blur-md">
+          <nav className="flex items-center gap-1.5 p-1 bg-white/10 rounded-full border border-white/20 text-xs font-semibold backdrop-blur-md overflow-x-auto max-w-full">
             {[
               { id: 'Farmer', label: '👨‍🌾 Farmer' },
               { id: 'Mandi', label: '🏛️ Mandi Info' },
@@ -402,7 +402,7 @@ export default function ComprehensiveAgriculturalDashboard() {
                   sound.playClick(900);
                   setActiveTab(tab.id as any);
                 }}
-                className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap ${
                   activeTab === tab.id
                     ? isHot
                       ? 'bg-red-600 text-white font-extrabold shadow-md'
@@ -454,6 +454,38 @@ export default function ComprehensiveAgriculturalDashboard() {
           onSendCoolingSignal={handleSendCoolingSignal}
           onSetTemperature={(t) => setLiveTemp(t)}
         />
+
+        {/* ======================================================== */}
+        {/* PROMINENT INTERACTIVE TAB NAVIGATION BAR                  */}
+        {/* ======================================================== */}
+        <div className="flex items-center justify-start sm:justify-center overflow-x-auto gap-2 p-2 rounded-2xl bg-black/40 backdrop-blur-xl border border-white/20 shadow-xl scrollbar-none">
+          {[
+            { id: 'Farmer', label: '👨‍🌾 Farmer Dashboard', desc: 'IoT Cold Box & Crops' },
+            { id: 'Mandi', label: '🏛️ Live Mandi Rates', desc: 'Government APMC Pricing' },
+            { id: 'Merchant', label: '🏢 Merchant Portal', desc: 'B2B Procurement & Orders' },
+            { id: 'Driver', label: '🚛 Driver Telemetry', desc: 'GPS & Route Radar' },
+            { id: 'Voice', label: '🎙️ Voice Phone', desc: 'Future Phone Calls' },
+            { id: 'CropDoctor', label: '🍃 AI Crop Doctor', desc: 'Gemini Pathology' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => {
+                sound.playClick(900);
+                setActiveTab(tab.id as any);
+              }}
+              className={`px-4 py-2.5 rounded-xl transition-all cursor-pointer flex flex-col items-start min-w-[140px] text-left ${
+                activeTab === tab.id
+                  ? 'bg-[#bef264] text-stone-950 shadow-lg ring-2 ring-lime-300 font-extrabold scale-105'
+                  : 'bg-white/10 hover:bg-white/20 text-white/90 border border-white/15'
+              }`}
+            >
+              <span className="text-xs font-bold whitespace-nowrap">{tab.label}</span>
+              <span className={`text-[10px] ${activeTab === tab.id ? 'text-stone-800' : 'text-white/60'} whitespace-nowrap`}>
+                {tab.desc}
+              </span>
+            </button>
+          ))}
+        </div>
 
         {/* ======================================================== */}
         {/* VIEW: DEDICATED MANDI INFORMATION VIEW                  */}
