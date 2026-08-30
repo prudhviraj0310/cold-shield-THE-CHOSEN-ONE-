@@ -515,8 +515,8 @@ export default function ComprehensiveAgriculturalDashboard() {
 
               {/* Tile 3: 3D Expandable Real OpenStreetMap Highway Radar Card */}
               <RealLocationMapCard
-                location="Madanapalle Tomato APMC Hub (Annamayya Dist)"
-                coordinates="13.5560° N, 78.5010° E"
+                location="MITS College Campus (Angallu, Madanapalle)"
+                coordinates="13.6268° N, 78.4343° E"
                 speed={liveSpeed}
                 distanceKm={liveDistance}
               />

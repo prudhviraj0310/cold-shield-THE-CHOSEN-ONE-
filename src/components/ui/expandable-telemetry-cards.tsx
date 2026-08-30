@@ -33,10 +33,10 @@ export interface RealLocationMapProps {
 }
 
 export function RealLocationMapCard({
-  location = 'Kurnool Highway (NH 44, KM 42)',
-  coordinates = '15.8281° N, 78.0373° E',
-  speed = 52.4,
-  distanceKm = 128.4,
+  location = 'MITS College Campus (Angallu, Madanapalle)',
+  coordinates = '13.6268° N, 78.4343° E',
+  speed = 0.0,
+  distanceKm = 0.0,
   className = '',
 }: RealLocationMapProps) {
   const [isHovered, setIsHovered] = useState(false);
@@ -102,7 +102,7 @@ export function RealLocationMapCard({
             </div>
             <h3 className="text-base font-bold text-stone-900 mt-1">{location}</h3>
             <span className="text-xs font-mono text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded inline-block">
-              {speed} km/h • 9 Sats Locked • Route NH 44
+              {speed} km/h • 9 Sats Locked • Route NH 42 / NH 44
             </span>
           </div>
 
@@ -125,7 +125,7 @@ export function RealLocationMapCard({
               {/* Real Embedded Interactive OpenStreetMap Route View */}
               <div className="relative w-full h-36 rounded-xl overflow-hidden border border-stone-200 shadow-inner bg-stone-100">
                 <iframe
-                  src="https://www.openstreetmap.org/export/embed.html?bbox=77.58%2C14.65%2C78.10%2C15.85&layer=mapnik&marker=15.8281%2C78.0373"
+                  src="https://www.openstreetmap.org/export/embed.html?bbox=78.4100%2C13.6100%2C78.4600%2C13.6450&layer=mapnik&marker=13.6268%2C78.4343"
                   className="w-full h-full border-0 pointer-events-none"
                   title="Real Live Map"
                   loading="lazy"
@@ -138,16 +138,16 @@ export function RealLocationMapCard({
               {/* Highway Waypoint Timeline */}
               <div className="grid grid-cols-4 gap-2 text-center text-[10px] font-mono border-t border-stone-100 pt-2">
                 <div className="p-1 rounded bg-emerald-50 text-emerald-800 font-bold">
-                  ✓ Anantapur
+                  ✓ MITS Campus
                 </div>
                 <div className="p-1 rounded bg-emerald-50 text-emerald-800 font-bold">
-                  ✓ Gooty (KM 60)
+                  ✓ Angallu (NH 42)
                 </div>
                 <div className="p-1 rounded bg-blue-50 text-blue-800 font-bold animate-pulse">
-                  📍 Dhone (Current)
+                  📍 Madanapalle APMC
                 </div>
                 <div className="p-1 rounded bg-stone-100 text-stone-600">
-                  ○ Kurnool Mandi
+                  ○ Bengaluru KR Mandi
                 </div>
               </div>
             </motion.div>
