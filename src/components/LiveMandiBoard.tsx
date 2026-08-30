@@ -563,30 +563,30 @@ export function LiveMandiBoard() {
   return (
     <div className="space-y-8">
       
-      {/* HEADER WITH CROP SELECTOR & CONTROLS */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div>
+      {/* HEADER WITH CROP SELECTOR & CONTROLS (INSIDE CRISP OPAQUE CARD) */}
+      <div className="p-6 sm:p-7 rounded-3xl bg-white/95 backdrop-blur-md border border-white/40 shadow-xl flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#166534] text-white">
               Pan-India Mandi Matrix
             </span>
-            <span className="text-xs font-mono text-stone-600 font-bold">Delhi • Mumbai • South Hubs</span>
+            <span className="text-xs font-mono text-emerald-800 font-bold">Delhi • Mumbai • South Hubs</span>
           </div>
-          <h3 className="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight mt-1">
+          <h3 className="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">
             Interstate Mandi Rates, Cold Storage &amp; Live Stock Intelligence
           </h3>
-          <p className="text-xs text-stone-500 mt-1">
+          <p className="text-xs text-stone-600">
             Compare wholesale rates, live stock arrivals, cold chamber rates, and long-distance diesel reefer costs.
           </p>
         </div>
 
         {/* Volume & View Toggle */}
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2 p-1.5 bg-stone-100 rounded-2xl border border-stone-200">
+          <div className="flex items-center gap-2 p-1.5 bg-stone-100 rounded-2xl border border-stone-200 shadow-xs">
             <span className="text-xs font-bold text-stone-700 pl-2">Batch Volume:</span>
             <button
               onClick={() => setCargoQuintals(Math.max(10, cargoQuintals - 10))}
-              className="w-7 h-7 rounded-lg bg-white border border-stone-300 font-bold text-xs hover:bg-stone-50 cursor-pointer"
+              className="w-7 h-7 rounded-lg bg-white border border-stone-300 font-bold text-xs hover:bg-stone-50 cursor-pointer shadow-xs"
             >
               -
             </button>
@@ -595,25 +595,25 @@ export function LiveMandiBoard() {
             </span>
             <button
               onClick={() => setCargoQuintals(cargoQuintals + 10)}
-              className="w-7 h-7 rounded-lg bg-white border border-stone-300 font-bold text-xs hover:bg-stone-50 cursor-pointer"
+              className="w-7 h-7 rounded-lg bg-white border border-stone-300 font-bold text-xs hover:bg-stone-50 cursor-pointer shadow-xs"
             >
               +
             </button>
           </div>
 
-          <div className="flex p-1 bg-stone-100 rounded-xl border border-stone-200 text-xs font-bold">
+          <div className="flex p-1 bg-stone-100 rounded-xl border border-stone-200 text-xs font-bold shadow-xs">
             <button
               onClick={() => setViewMode('matrix')}
-              className={`px-3 py-1.5 rounded-lg cursor-pointer transition-all ${
-                viewMode === 'matrix' ? 'bg-[#166534] text-white shadow-xs' : 'text-stone-600'
+              className={`px-3.5 py-1.5 rounded-lg cursor-pointer transition-all ${
+                viewMode === 'matrix' ? 'bg-[#166534] text-white shadow-xs' : 'text-stone-600 hover:text-stone-900'
               }`}
             >
               📊 Full Matrix
             </button>
             <button
               onClick={() => setViewMode('cards')}
-              className={`px-3 py-1.5 rounded-lg cursor-pointer transition-all ${
-                viewMode === 'cards' ? 'bg-[#166534] text-white shadow-xs' : 'text-stone-600'
+              className={`px-3.5 py-1.5 rounded-lg cursor-pointer transition-all ${
+                viewMode === 'cards' ? 'bg-[#166534] text-white shadow-xs' : 'text-stone-600 hover:text-stone-900'
               }`}
             >
               🗂️ Cards
@@ -623,7 +623,8 @@ export function LiveMandiBoard() {
       </div>
 
       {/* CROP SWITCHER TABS WITH STORAGE CLASSIFICATION */}
-      <div className="flex flex-wrap items-center gap-2 pb-1">
+      <div className="p-3.5 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg flex flex-wrap items-center gap-2">
+        <span className="text-xs font-bold text-stone-600 px-2">Select Commodity:</span>
         {PAN_INDIA_COMMODITIES.map((item, idx) => {
           const isSelected = selectedCropIndex === idx;
           const isCold = item.category === 'Cold Chain Required';
@@ -634,10 +635,10 @@ export function LiveMandiBoard() {
                 sound.playClick(1000);
                 setSelectedCropIndex(idx);
               }}
-              className={`px-4 py-2.5 rounded-2xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
                 isSelected
                   ? 'bg-[#166534] text-white shadow-md ring-2 ring-emerald-600'
-                  : 'bg-white/95 backdrop-blur-md text-stone-700 hover:bg-stone-100 border border-stone-200'
+                  : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200'
               }`}
             >
               {isCold ? (
@@ -647,9 +648,9 @@ export function LiveMandiBoard() {
               )}
               <span>{item.crop}</span>
               <span className={`text-[10px] px-2 py-0.5 rounded-full font-normal ${
-                isSelected ? 'bg-white/20 text-white' : 'bg-stone-100 text-stone-600'
+                isSelected ? 'bg-white/20 text-white' : 'bg-stone-200 text-stone-600'
               }`}>
-                {isCold ? 'Cold 0-4°C' : 'Dry Ambient'}
+                {item.tempRequirement.split(' ')[0]}
               </span>
             </button>
           );

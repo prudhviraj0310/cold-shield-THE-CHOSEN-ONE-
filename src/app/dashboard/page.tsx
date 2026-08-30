@@ -1186,34 +1186,36 @@ export default function ComprehensiveAgriculturalDashboard() {
         {activeTab === 'CropDoctor' && (
           <div className="space-y-8">
             
-            {/* HEADER */}
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#166534] text-white">
-                  Gemini Vision Pathology
-                </span>
-                <span className="text-xs font-mono text-stone-600 font-bold">Multimodal Crop Disease Scanner</span>
+            {/* HEADER (INSIDE CRISP OPAQUE CARD) */}
+            <div className="p-6 sm:p-7 rounded-3xl bg-white/95 backdrop-blur-md border border-white/40 shadow-xl space-y-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#166534] text-white">
+                    Gemini Vision Pathology
+                  </span>
+                  <span className="text-xs font-mono text-emerald-800 font-bold">Multimodal Crop Disease Scanner</span>
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">
+                  AI Crop Doctor: Damage Quantification &amp; Curative Prescriptions
+                </h3>
+                <p className="text-xs text-stone-600">
+                  Upload a plant or leaf image to calculate exact tissue damage %, diagnose the pathology, and receive chemical + organic remedies.
+                </p>
               </div>
-              <h3 className="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight mt-1">
-                AI Crop Doctor: Damage Quantification &amp; Curative Prescriptions
-              </h3>
-              <p className="text-xs text-stone-500 mt-1">
-                Upload a plant or leaf image to calculate exact tissue damage %, diagnose the pathology, and receive chemical + organic remedies.
-              </p>
-            </div>
 
-            {/* PRE-LOADED SAMPLES PICKER */}
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-bold text-stone-600 mr-2">Or test sample leaves:</span>
-              {SAMPLE_LEAF_IMAGES.map((sample) => (
-                <button
-                  key={sample.name}
-                  onClick={() => handleSelectSample(sample.url)}
-                  className="px-3.5 py-1.5 rounded-xl bg-white/95 backdrop-blur-md border border-stone-300 hover:border-emerald-600 text-xs font-semibold text-stone-800 transition-all shadow-xs cursor-pointer"
-                >
-                  {sample.name}
-                </button>
-              ))}
+              {/* PRE-LOADED SAMPLES PICKER */}
+              <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-stone-200">
+                <span className="text-xs font-bold text-stone-700 mr-2">Or test sample leaves:</span>
+                {SAMPLE_LEAF_IMAGES.map((sample) => (
+                  <button
+                    key={sample.name}
+                    onClick={() => handleSelectSample(sample.url)}
+                    className="px-3.5 py-1.5 rounded-xl bg-stone-100 hover:bg-emerald-50 border border-stone-300 hover:border-emerald-600 text-xs font-semibold text-stone-800 transition-all shadow-xs cursor-pointer"
+                  >
+                    {sample.name}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
