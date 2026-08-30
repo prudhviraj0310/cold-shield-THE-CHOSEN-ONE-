@@ -291,11 +291,25 @@ export const LiveContainerVisionDemo: React.FC<LiveContainerVisionDemoProps> = (
           
           {/* Top Camera Stream Bar */}
           <div className="p-3 bg-black/70 backdrop-blur-md flex items-center justify-between border-b border-white/15 z-10">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[11px] font-mono font-bold text-white uppercase">
-                {cameraActive ? 'LIVE CAMERA STREAM • CONTAINER INSIDE VIEW' : 'CAMERA OFF • UPLOAD MODE'}
-              </span>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-[11px] font-mono font-bold text-white uppercase hidden sm:inline">
+                  {cameraActive ? 'LIVE CAMERA STREAM' : 'PI USB CAMERA'}
+                </span>
+              </div>
+              
+              {/* Prominent Live Temp Pill on Camera Bar */}
+              <div className="px-3 py-1 rounded-xl bg-black/90 border border-white/25 flex items-center gap-2 shadow-xs">
+                <span className={`text-xs font-mono font-extrabold ${isHot ? 'text-red-400 animate-pulse' : isCooling ? 'text-cyan-300' : 'text-[#bef264]'}`}>
+                  🌡️ {liveTemp.toFixed(1)}°C
+                </span>
+                <span className={`px-1.5 py-0.2 rounded text-[9px] font-extrabold ${
+                  isHot ? 'bg-red-600 text-white' : isCooling ? 'bg-cyan-400 text-black' : 'bg-emerald-600 text-white'
+                }`}>
+                  {isHot ? '⚠️ HOT' : isCooling ? '❄️ COOLING' : '✅ SAFE'}
+                </span>
+              </div>
             </div>
 
             <div className="flex items-center gap-1.5">
@@ -305,7 +319,7 @@ export const LiveContainerVisionDemo: React.FC<LiveContainerVisionDemoProps> = (
                   sourceMode === 'pi' ? 'bg-[#bef264] text-stone-950' : 'bg-white/20 text-white'
                 }`}
               >
-                {sourceMode === 'pi' ? '🍓 Pi USB Cam (Active)' : '💻 Switch to Pi Cam'}
+                {sourceMode === 'pi' ? '🍓 Pi USB Cam' : '💻 Switch to Pi Cam'}
               </button>
               {sourceMode === 'webcam' && (
                 <button
@@ -327,7 +341,7 @@ export const LiveContainerVisionDemo: React.FC<LiveContainerVisionDemoProps> = (
           </div>
 
           {/* Video or Captured Frame */}
-          <div className="relative flex-1 w-full min-h-[240px] bg-stone-900 flex items-center justify-center overflow-hidden">
+          <div className="relative flex-1 w-full min-h-[260px] bg-stone-900 flex items-center justify-center overflow-hidden">
             {sourceMode === 'pi' ? (
               <img
                 src={`${piUrl}/stream.mjpg`}
@@ -360,6 +374,23 @@ export const LiveContainerVisionDemo: React.FC<LiveContainerVisionDemoProps> = (
                 </button>
               </div>
             )}
+
+            {/* Glowing Bottom-Left Live Temperature HUD */}
+            <div className="absolute bottom-3 left-3 px-3.5 py-2 rounded-2xl bg-black/85 backdrop-blur-md border border-white/25 shadow-2xl flex items-center gap-3 z-10">
+              <div>
+                <span className="text-[9px] font-mono uppercase tracking-wider text-white/60 block">Container Temperature</span>
+                <span className={`text-xl font-mono font-extrabold ${isHot ? 'text-red-400 animate-pulse' : isCooling ? 'text-cyan-300' : 'text-[#bef264]'}`}>
+                  {liveTemp.toFixed(1)}°C
+                </span>
+              </div>
+              <div className="h-6 w-px bg-white/20" />
+              <div>
+                <span className="text-[9px] font-mono uppercase tracking-wider text-white/60 block">Status</span>
+                <span className={`text-xs font-mono font-bold ${isHot ? 'text-red-400' : isCooling ? 'text-cyan-300' : 'text-emerald-300'}`}>
+                  {isHot ? '⚠️ OVERHEATED' : isCooling ? '❄️ COOLING ON' : '✅ OPTIMAL'}
+                </span>
+              </div>
+            </div>
 
             {/* Scanning Laser Animation Overlay */}
             {scanning && (

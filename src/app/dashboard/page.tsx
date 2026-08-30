@@ -429,7 +429,7 @@ export default function ComprehensiveAgriculturalDashboard() {
               <span className={`w-2.5 h-2.5 rounded-full ${
                 isHot ? 'bg-red-400 animate-ping' : isCooling ? 'bg-teal-300 animate-ping' : 'bg-emerald-300'
               }`} />
-              <span>{isHot ? '⚠️ HEAT ALERT (8.6°C)' : isCooling ? '❄️ COOLING ACTIVE' : '4.2°C OPTIMAL'}</span>
+              <span className="font-mono">🌡️ {liveTemp.toFixed(1)}°C {isHot ? '⚠️ OVERHEAT' : isCooling ? '❄️ COOLING' : '✅ OPTIMAL'}</span>
             </div>
             <span className="text-xs font-mono text-white/85 font-semibold">{timeString}</span>
           </div>
