@@ -543,6 +543,150 @@ export default function ComprehensiveAgriculturalDashboard() {
 
             </div>
 
+            {/* ⭐ CULTIVATION HEALTH & STAR RATING DASHBOARD */}
+            <div className="p-6 sm:p-7 rounded-3xl bg-white/95 backdrop-blur-md border border-white/40 shadow-xl space-y-5">
+              
+              {/* Section Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-stone-200">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-500 text-white">
+                      Farm Intelligence
+                    </span>
+                    <span className="text-xs font-mono text-amber-800 font-bold">Cultivation Quality Index</span>
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-extrabold text-stone-900 tracking-tight">
+                    Crop Cultivation Health & Star Rating
+                  </h3>
+                  <p className="text-xs text-stone-600">
+                    Overall quality assessment based on cold-chain integrity, soil health, and real-time IoT sensor data.
+                  </p>
+                </div>
+
+                {/* Overall Rating Badge */}
+                <div className="flex flex-col items-center p-4 rounded-2xl bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-300 shadow-md min-w-[140px]">
+                  <span className="text-[10px] font-mono text-amber-800 font-bold uppercase">Overall Farm</span>
+                  <div className="flex items-center gap-0.5 mt-1">
+                    {[1,2,3,4,5].map((s) => (
+                      <svg key={s} className="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    ))}
+                  </div>
+                  <span className="text-lg font-extrabold text-amber-900 font-mono mt-0.5">4.8 / 5.0</span>
+                  <span className="text-[10px] text-amber-700 font-medium">Excellent Quality</span>
+                </div>
+              </div>
+
+              {/* Individual Crop Ratings Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                
+                {/* Tomato */}
+                {(() => {
+                  const crops = [
+                    { name: 'Tomato (Hybrid Grade-A)', emoji: '🍅', rating: 5.0, temp: liveTemp, idealTemp: '0°C – 4°C', status: 'OPTIMAL', statusColor: 'emerald', freshness: 99.4, shelfLife: '21 Days' },
+                    { name: 'Green Chilli (Spicy G4)', emoji: '🌶️', rating: 4.8, temp: liveTemp, idealTemp: '7°C – 10°C', status: 'GOOD', statusColor: 'emerald', freshness: 96.2, shelfLife: '14 Days' },
+                    { name: 'Mango (Banganapalle)', emoji: '🥭', rating: 4.7, temp: liveTemp, idealTemp: '8°C – 12°C', status: 'GOOD', statusColor: 'emerald', freshness: 94.5, shelfLife: '18 Days' },
+                    { name: 'Onion (Bellary Red)', emoji: '🧅', rating: 5.0, temp: 22.0, idealTemp: 'Ambient (Dry)', status: 'OPTIMAL', statusColor: 'emerald', freshness: 99.8, shelfLife: '60+ Days' },
+                    { name: 'Potato (Kufri Jyoti)', emoji: '🥔', rating: 4.6, temp: liveTemp + 2, idealTemp: '4°C – 8°C', status: 'GOOD', statusColor: 'amber', freshness: 92.1, shelfLife: '30 Days' },
+                    { name: 'Dry Red Chilli (Teja)', emoji: '🫑', rating: 5.0, temp: 24.0, idealTemp: 'Ambient (Dry)', status: 'OPTIMAL', statusColor: 'emerald', freshness: 99.9, shelfLife: '120+ Days' },
+                  ];
+                  return crops.map((crop) => (
+                    <div key={crop.name} className="p-4 rounded-2xl bg-stone-50 border border-stone-200 hover:shadow-md transition-shadow space-y-3">
+                      
+                      {/* Crop Header */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-xl">{crop.emoji}</span>
+                          <div>
+                            <div className="text-xs font-bold text-stone-900">{crop.name}</div>
+                            <div className="text-[10px] text-stone-500 font-mono">Ideal: {crop.idealTemp}</div>
+                          </div>
+                        </div>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                          crop.statusColor === 'emerald' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                        }`}>
+                          {crop.status}
+                        </span>
+                      </div>
+
+                      {/* Star Rating */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1">
+                          {[1,2,3,4,5].map((s) => {
+                            const filled = s <= Math.floor(crop.rating);
+                            const half = s === Math.ceil(crop.rating) && crop.rating % 1 >= 0.5 && !filled;
+                            return (
+                              <svg key={s} className={`w-4 h-4 ${filled || half ? 'text-amber-500' : 'text-stone-300'}`} fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                              </svg>
+                            );
+                          })}
+                          <span className="text-xs font-extrabold font-mono text-amber-900 ml-1">{crop.rating.toFixed(1)}/5</span>
+                        </div>
+                      </div>
+
+                      {/* Stats Row */}
+                      <div className="grid grid-cols-3 gap-2 text-center text-[10px]">
+                        <div className="p-1.5 rounded-xl bg-white border border-stone-200">
+                          <div className="font-mono font-bold text-stone-900">{crop.temp.toFixed(1)}°C</div>
+                          <div className="text-stone-500">Current</div>
+                        </div>
+                        <div className="p-1.5 rounded-xl bg-white border border-stone-200">
+                          <div className="font-mono font-bold text-[#166534]">{crop.freshness}%</div>
+                          <div className="text-stone-500">Freshness</div>
+                        </div>
+                        <div className="p-1.5 rounded-xl bg-white border border-stone-200">
+                          <div className="font-mono font-bold text-stone-900">{crop.shelfLife}</div>
+                          <div className="text-stone-500">Shelf Life</div>
+                        </div>
+                      </div>
+
+                      {/* Freshness Progress Bar */}
+                      <div className="w-full h-1.5 bg-stone-200 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-700 ${
+                            crop.freshness >= 95 ? 'bg-[#166534]' : crop.freshness >= 85 ? 'bg-amber-500' : 'bg-red-500'
+                          }`}
+                          style={{ width: `${crop.freshness}%` }}
+                        />
+                      </div>
+                    </div>
+                  ));
+                })()}
+
+              </div>
+
+              {/* Overall Temperature Summary Bar */}
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-50 to-emerald-100 border border-emerald-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg font-bold shadow-xs ${
+                    isHot ? 'bg-red-500 text-white' : 'bg-[#166534] text-white'
+                  }`}>
+                    {isHot ? '⚠️' : '✅'}
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-stone-900">
+                      Overall Cold-Chain Temperature: <span className={`font-mono ${isHot ? 'text-red-700' : 'text-[#166534]'}`}>{liveTemp.toFixed(1)}°C</span>
+                    </div>
+                    <div className="text-[10px] text-stone-600">
+                      {isHot
+                        ? 'Thermal breach detected. Cooling system engaged. Some crops may experience reduced shelf life.'
+                        : 'All 6 crop categories within optimal cold-chain custody. Zero thermal drift. Maximum shelf life guaranteed.'}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`px-3 py-1.5 rounded-full text-[11px] font-extrabold ${
+                    isHot ? 'bg-red-100 text-red-800 border border-red-300' : 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                  }`}>
+                    {isHot ? '🔴 THERMAL ALERT' : '🟢 ALL SYSTEMS OPTIMAL'}
+                  </span>
+                </div>
+              </div>
+
+            </div>
+
             {/* TACTILE 2G FEATURE PHONE CALLING UNIT */}
             <div className="w-full">
               <InteractiveFeaturePhone
