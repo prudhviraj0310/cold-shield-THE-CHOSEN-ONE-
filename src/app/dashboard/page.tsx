@@ -41,6 +41,14 @@ import {
   Bot,
   Activity,
   HeartPulse,
+  Star,
+  Eye,
+  Gauge,
+  Award,
+  Compass,
+  Shield,
+  User,
+  AlertCircle,
 } from 'lucide-react';
 import { sound } from '@/lib/audio';
 import { fetchThingSpeakData } from '@/services/thingspeak';
@@ -697,47 +705,473 @@ export default function ComprehensiveAgriculturalDashboard() {
         )}
 
         {/* ======================================================== */}
-        {/* VIEW 2: MERCHANT PORTAL                                  */}
+        {/* VIEW 2: MERCHANT PORTAL — FLEET & DRIVER INTELLIGENCE    */}
         {/* ======================================================== */}
         {activeTab === 'Merchant' && (
           <div className="space-y-8">
+            {/* Top Commercial Consignment Passport */}
             <div className="p-6 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider block">
-                  COMMERCIAL APMC PASSPORT
-                </span>
-                <h3 className="text-lg font-bold text-stone-900 mt-0.5">
-                  Batch #JRN-2048 • Grade-A Tomato Inspection
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#166534] text-[11px] font-bold tracking-wider uppercase">
+                    COMMERCIAL APMC PASSPORT
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[11px] font-bold tracking-wide">
+                    IN-TRANSIT REEFER CUSTODY
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-stone-900">
+                  Consignment #JRN-2048 • Grade-A Tomato Inspection
                 </h3>
+                <p className="text-xs text-stone-500 flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+                  Origin: <strong className="text-stone-700">Anantapur Farm Hub</strong> → Destination: <strong className="text-stone-700">Kurnool APMC Terminal (Gate #2)</strong>
+                </p>
               </div>
-              <div className="text-right">
+              <div className="text-left md:text-right border-t md:border-t-0 pt-3 md:pt-0 border-stone-200">
                 <span className="text-xs text-stone-500 block">Today&apos;s Mandi Price</span>
                 <span className="text-2xl font-extrabold text-[#166534]">₹2,450 / Quintal</span>
+                <span className="text-[11px] text-emerald-700 font-semibold block">Total Consignment Value: ₹88,200</span>
               </div>
             </div>
 
+            {/* 3 Top Commercial Telemetry Tiles */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <div className="p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg">
-                <span className="text-xs font-semibold text-stone-500 block">BATCH VOLUME</span>
+              <div className="p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg relative overflow-hidden">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">BATCH VOLUME</span>
+                  <Box className="w-4 h-4 text-stone-400" />
+                </div>
                 <div className="text-2xl font-bold text-stone-900 mt-1">180 Crates (3,600 kg)</div>
-                <div className="text-xs text-emerald-700 font-semibold mt-1">Estimated Value: ₹88,200</div>
+                <div className="text-xs text-emerald-700 font-semibold mt-1">36 Quintals • Grade-A Sorted</div>
               </div>
 
-              <div className="p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg">
-                <span className="text-xs font-semibold text-stone-500 block">THERMAL CUSTODY</span>
+              <div className="p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg relative overflow-hidden">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">THERMAL CUSTODY</span>
+                  <Thermometer className="w-4 h-4 text-emerald-600" />
+                </div>
                 <div className="text-2xl font-bold text-[#166534] mt-1">{liveTemp.toFixed(1)}°C (Verified Safe)</div>
-                <div className="text-xs text-stone-500 mt-1">Ambient Outside: 31.7°C</div>
+                <div className="text-xs text-stone-500 mt-1">Ambient Outside: 31.7°C • Delta: -27.5°C</div>
               </div>
 
-              <div className="p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg">
-                <span className="text-xs font-semibold text-stone-500 block">DIRECT FARMER</span>
+              <div className="p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg relative overflow-hidden">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">DIRECT FARMER</span>
+                  <User className="w-4 h-4 text-stone-400" />
+                </div>
                 <div className="text-lg font-bold text-stone-900 mt-1">{farmerName}</div>
-                <div className="text-xs text-stone-500 mt-1">{farmerPhone}</div>
+                <div className="text-xs text-stone-500 mt-1">{farmerPhone} • Anantapur District</div>
               </div>
             </div>
 
-            {/* Cold Storage Facility Inventory & Unit Logs */}
-            <ColdStorageIntelligence />
+            {/* MAIN TWO-COLUMN SECTION: DRIVER AI CAMERA & LIVE DRIVING SAFETY TELEMETRY */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              
+              {/* LEFT COLUMN: DRIVER AI CABIN CAMERA STREAM (Captured via Raspberry Pi) */}
+              <div className="lg:col-span-6 space-y-6">
+                <div className="p-6 rounded-3xl bg-white/95 backdrop-blur-md border border-white/40 shadow-xl space-y-5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
+                      <h4 className="text-xs font-bold text-stone-900 uppercase tracking-wider">
+                        Raspberry Pi AI Cabin Camera
+                      </h4>
+                    </div>
+                    <span className="px-2.5 py-0.5 rounded-full bg-stone-900 text-white text-[10px] font-mono font-semibold">
+                      CSI-0 • 1080P @ 30 FPS
+                    </span>
+                  </div>
+
+                  {/* Photo of Driver Clicked by Pi Camera with Telemetry HUD Overlay */}
+                  <div className="relative rounded-2xl overflow-hidden border border-stone-800 shadow-2xl bg-stone-950 group aspect-[4/3]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/samples/driver_cabin_live.jpg"
+                      alt="Driver Cabin Live Stream from Raspberry Pi Camera"
+                      className="w-full h-full object-cover"
+                    />
+
+                    {/* Live Watermark & Sensor Overlays */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/60 pointer-events-none flex flex-col justify-between p-4 font-mono text-[11px] text-white">
+                      {/* Top HUD */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-md border border-white/10">
+                          <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
+                          <span className="text-red-400 font-bold">● REC</span>
+                          <span className="text-stone-300">RPI-NODE-01</span>
+                        </div>
+                        <div className="bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-md border border-white/10 text-emerald-400 font-semibold">
+                          AI FACE MESH: ACTIVE
+                        </div>
+                      </div>
+
+                      {/* AI Face Detection Bounding Box Simulation */}
+                      <div className="absolute top-[32%] right-[22%] w-[28%] h-[42%] border-2 border-emerald-400/80 rounded-lg pointer-events-none flex flex-col justify-between p-1 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                        <span className="text-[9px] bg-emerald-500 text-black font-bold px-1 rounded-xs self-start">
+                          DRIVER #DRV-8492
+                        </span>
+                        <div className="flex justify-between items-end text-[8px] text-emerald-300 bg-black/60 px-1 rounded-xs">
+                          <span>EAR: 0.28 (ALERT)</span>
+                          <span>TILT: 0°</span>
+                        </div>
+                      </div>
+
+                      {/* Bottom HUD */}
+                      <div className="space-y-1 bg-black/70 backdrop-blur-md p-2.5 rounded-xl border border-white/10">
+                        <div className="flex items-center justify-between text-stone-200">
+                          <span>GPS: 15.8281° N, 78.0373° E</span>
+                          <span className="text-emerald-400 font-bold">SPEED: 52.4 km/h</span>
+                        </div>
+                        <div className="flex items-center justify-between text-stone-400 text-[10px]">
+                          <span>NEO-6M: 9 SATS LOCKED</span>
+                          <span>CABIN TEMP: 26.2°C</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Driver Bio & Real-time AI Health Metrics */}
+                  <div className="space-y-3 pt-1">
+                    <div className="flex items-center justify-between p-3.5 rounded-xl bg-stone-50 border border-stone-200">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-emerald-800 text-white font-bold flex items-center justify-center text-sm shadow-xs">
+                          SK
+                        </div>
+                        <div>
+                          <div className="text-sm font-bold text-stone-900">{driverName}</div>
+                          <div className="text-xs text-stone-500">12 Yrs Commercial Cold-Reefer Captain • ID: #DRV-8492</div>
+                        </div>
+                      </div>
+                      <a
+                        href={`tel:${driverPhone.replace(/\s+/g, '')}`}
+                        className="px-4 py-2 rounded-full bg-[#166534] hover:bg-[#15803d] text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
+                      >
+                        <PhoneCall className="w-3.5 h-3.5" />
+                        <span>Call Driver</span>
+                      </a>
+                    </div>
+
+                    {/* 4x Driver Biometrics Grid */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200/80">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-emerald-900 font-semibold flex items-center gap-1">
+                            <Eye className="w-3.5 h-3.5 text-emerald-700" />
+                            Eye State (EAR)
+                          </span>
+                          <span className="font-bold text-emerald-800">0.28</span>
+                        </div>
+                        <div className="text-[11px] text-emerald-700 font-medium mt-1">
+                          🟢 Eyes Wide Open • 100% Alert
+                        </div>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200/80">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-emerald-900 font-semibold flex items-center gap-1">
+                            <Activity className="w-3.5 h-3.5 text-emerald-700" />
+                            Yawn Rate (MAR)
+                          </span>
+                          <span className="font-bold text-emerald-800">0.14</span>
+                        </div>
+                        <div className="text-[11px] text-emerald-700 font-medium mt-1">
+                          🟢 Zero Yawning • No Fatigue
+                        </div>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200/80">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-emerald-900 font-semibold flex items-center gap-1">
+                            <User className="w-3.5 h-3.5 text-emerald-700" />
+                            Head Posture
+                          </span>
+                          <span className="font-bold text-emerald-800">0° Tilt</span>
+                        </div>
+                        <div className="text-[11px] text-emerald-700 font-medium mt-1">
+                          🟢 Upright & Road Focused
+                        </div>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200/80">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-emerald-900 font-semibold flex items-center gap-1">
+                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
+                            Seatbelt Sensor
+                          </span>
+                          <span className="font-bold text-emerald-800">LOCKED</span>
+                        </div>
+                        <div className="text-[11px] text-emerald-700 font-medium mt-1">
+                          🟢 Securely Fastened
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* RIGHT COLUMN: WHERE CAR IS MOVING & DRIVING SAFETY STATISTICS (SCALE TO 5.0) */}
+              <div className="lg:col-span-6 space-y-6">
+                
+                {/* 1. WHERE THE CAR IS MOVING (LIVE GPS & HIGHWAY TRANSIT RADAR) */}
+                <div className="p-6 rounded-3xl bg-white/95 backdrop-blur-md border border-white/40 shadow-xl space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Compass className="w-4 h-4 text-emerald-700" />
+                      <h4 className="text-xs font-bold text-stone-900 uppercase tracking-wider">
+                        Live Cargo Vehicle Location & Motion
+                      </h4>
+                    </div>
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold">
+                      GPS LOCKED (9 SATS)
+                    </span>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-stone-900 text-white space-y-3">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <span className="text-[11px] text-emerald-400 font-mono font-semibold uppercase tracking-wider block">
+                          Current Highway Corridor
+                        </span>
+                        <div className="text-base font-bold text-white mt-0.5">
+                          NH 44 High-Speed Corridor • KM 42.8
+                        </div>
+                        <div className="text-xs text-stone-300 mt-0.5">
+                          Near Dhone Highway Bypass • Heading towards Kurnool Mandi
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-black font-mono text-emerald-400">
+                          {liveSpeed} <span className="text-xs font-normal text-stone-300">km/h</span>
+                        </div>
+                        <span className="text-[10px] text-stone-400 block">Cruising Speed</span>
+                      </div>
+                    </div>
+
+                    {/* Progress Bar from Farm to Mandi */}
+                    <div className="space-y-1.5 pt-2 border-t border-stone-800">
+                      <div className="flex justify-between text-xs text-stone-300">
+                        <span>Anantapur (0 km)</span>
+                        <span className="font-bold text-emerald-400">{liveDistance} km / 180 km (71%)</span>
+                        <span>Kurnool Mandi (180 km)</span>
+                      </div>
+                      <div className="w-full h-2.5 bg-stone-800 rounded-full overflow-hidden p-0.5">
+                        <div
+                          className="h-full bg-gradient-to-r from-emerald-500 to-green-400 rounded-full transition-all duration-1000 shadow-sm"
+                          style={{ width: `${(liveDistance / 180) * 100}%` }}
+                        />
+                      </div>
+                      <div className="flex justify-between text-[11px] text-stone-400">
+                        <span>Departed: 11:30 AM</span>
+                        <span className="text-emerald-300 font-medium">Remaining: 51.6 km • ETA: 4:00 PM</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. DRIVER SAFETY STATISTICS (SCALED 1 TO 5.0) */}
+                <div className="p-6 rounded-3xl bg-white/95 backdrop-blur-md border border-white/40 shadow-xl space-y-5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Award className="w-4 h-4 text-[#166534]" />
+                      <h4 className="text-xs font-bold text-stone-900 uppercase tracking-wider">
+                        Driver Safety Performance Index
+                      </h4>
+                    </div>
+                    <span className="text-[11px] font-bold text-stone-500">
+                      Scaled to 5.0 Maximum
+                    </span>
+                  </div>
+
+                  {/* Big Hero Rating Score Card */}
+                  <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-800 to-emerald-950 text-white flex items-center justify-between shadow-lg">
+                    <div className="space-y-1">
+                      <span className="text-[11px] text-emerald-300 font-bold uppercase tracking-wider block">
+                        OVERALL DRIVING SAFETY RATING
+                      </span>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-4xl font-black tracking-tight text-white">4.9</span>
+                        <span className="text-lg text-emerald-300 font-bold">/ 5.0</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-amber-300">
+                        <Star className="w-4 h-4 fill-amber-300 text-amber-300" />
+                        <Star className="w-4 h-4 fill-amber-300 text-amber-300" />
+                        <Star className="w-4 h-4 fill-amber-300 text-amber-300" />
+                        <Star className="w-4 h-4 fill-amber-300 text-amber-300" />
+                        <Star className="w-4 h-4 fill-amber-300 text-amber-300" />
+                        <span className="text-xs text-white font-semibold ml-1.5">Top 2% Safest Fleet</span>
+                      </div>
+                    </div>
+
+                    <div className="text-right bg-white/10 backdrop-blur-md p-3 rounded-xl border border-white/15">
+                      <ShieldCheck className="w-8 h-8 text-emerald-300 mx-auto" />
+                      <div className="text-[11px] font-bold text-white mt-1">SAFE TRANSIT</div>
+                      <div className="text-[9px] text-emerald-200">0 Incident Alerts</div>
+                    </div>
+                  </div>
+
+                  {/* 4 Metric Breakdown Bars (Scaled out of 5) */}
+                  <div className="space-y-3.5">
+                    
+                    {/* Metric 1: Alertness */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-bold text-stone-800 flex items-center gap-1.5">
+                          <Eye className="w-3.5 h-3.5 text-emerald-600" />
+                          Drowsiness & Alertness Index
+                        </span>
+                        <span className="font-extrabold text-[#166534]">5.0 / 5.0</span>
+                      </div>
+                      <div className="w-full h-2 bg-stone-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-emerald-600 rounded-full w-full" />
+                      </div>
+                      <p className="text-[10px] text-stone-500">
+                        0 micro-sleep lapses or eye-closure episodes detected across 128 km transit.
+                      </p>
+                    </div>
+
+                    {/* Metric 2: Speed Compliance */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-bold text-stone-800 flex items-center gap-1.5">
+                          <Gauge className="w-3.5 h-3.5 text-emerald-600" />
+                          Speed & Highway Limit Adherence
+                        </span>
+                        <span className="font-extrabold text-[#166534]">4.8 / 5.0</span>
+                      </div>
+                      <div className="w-full h-2 bg-stone-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-emerald-600 rounded-full w-[96%]" />
+                      </div>
+                      <p className="text-[10px] text-stone-500">
+                        Cruising steadily in 45–60 km/h green band; zero over-speeding infractions.
+                      </p>
+                    </div>
+
+                    {/* Metric 3: G-Force / Rash Driving */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-bold text-stone-800 flex items-center gap-1.5">
+                          <Shield className="w-3.5 h-3.5 text-emerald-600" />
+                          Cornering & Smooth Braking
+                        </span>
+                        <span className="font-extrabold text-[#166534]">4.9 / 5.0</span>
+                      </div>
+                      <div className="w-full h-2 bg-stone-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-emerald-600 rounded-full w-[98%]" />
+                      </div>
+                      <p className="text-[10px] text-stone-500">
+                        Gentle braking & cornering; 0 rough road jolts to preserve tender crop skin.
+                      </p>
+                    </div>
+
+                    {/* Metric 4: Reefer Custody Preservation */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-bold text-stone-800 flex items-center gap-1.5">
+                          <Snowflake className="w-3.5 h-3.5 text-emerald-600" />
+                          Cold-Chain Integrity Preservation
+                        </span>
+                        <span className="font-extrabold text-[#166534]">5.0 / 5.0</span>
+                      </div>
+                      <div className="w-full h-2 bg-stone-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-emerald-600 rounded-full w-full" />
+                      </div>
+                      <p className="text-[10px] text-stone-500">
+                        Cargo container doors sealed airtight; uninterrupted 4.2°C temperature corridor.
+                      </p>
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+            {/* DOWNSIDE: CARGO REEFER COMMERCIAL NUMBER PLATE & TRANSPORT MANIFEST */}
+            <div className="p-6 md:p-8 rounded-3xl bg-white/95 backdrop-blur-md border border-white/40 shadow-2xl space-y-6">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-stone-200 pb-5">
+                <div>
+                  <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider block">
+                    REGISTERED CARGO VEHICLE ASSET
+                  </span>
+                  <h3 className="text-lg font-bold text-stone-900 mt-0.5">
+                    Insulated Reefer Cargo Truck Manifest
+                  </h3>
+                </div>
+                
+                {/* Authentic Indian Commercial Cargo Number Plate Display */}
+                <div className="flex items-center">
+                  <div className="flex items-center bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 border-3 border-stone-950 rounded-xl shadow-md overflow-hidden">
+                    {/* Blue IND Badge Strip */}
+                    <div className="bg-blue-700 text-white px-2 py-2 flex flex-col items-center justify-center font-bold text-[10px] leading-tight border-r-2 border-stone-950">
+                      <span className="text-[8px] font-sans">🇮🇳</span>
+                      <span className="font-mono tracking-tighter">IND</span>
+                    </div>
+                    {/* Embossed Bold Commercial Number */}
+                    <div className="px-5 py-2 text-stone-950 font-mono font-black tracking-widest text-2xl md:text-3xl select-all">
+                      AP 21 TC 9842
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Technical Specifications of Cargo Vehicle */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+                <div className="p-4 rounded-xl bg-stone-50 border border-stone-200 space-y-1">
+                  <span className="text-stone-500 font-medium block">Vehicle Model</span>
+                  <div className="font-bold text-stone-900">Tata 407 LPT Heavy Reefer</div>
+                  <span className="text-[10px] text-stone-400 block">Insulated FRP Box</span>
+                </div>
+
+                <div className="p-4 rounded-xl bg-stone-50 border border-stone-200 space-y-1">
+                  <span className="text-stone-500 font-medium block">Refrigeration Unit</span>
+                  <div className="font-bold text-emerald-800">Carrier Transicold Supra</div>
+                  <span className="text-[10px] text-stone-400 block">Auto-PWM Regulated @ 4.2°C</span>
+                </div>
+
+                <div className="p-4 rounded-xl bg-stone-50 border border-stone-200 space-y-1">
+                  <span className="text-stone-500 font-medium block">Fastag & Toll Gateway</span>
+                  <div className="font-bold text-stone-900">Active • Fastag #849102</div>
+                  <span className="text-[10px] text-emerald-700 block">Toll 4 Cleared (08:42 AM)</span>
+                </div>
+
+                <div className="p-4 rounded-xl bg-stone-50 border border-stone-200 space-y-1">
+                  <span className="text-stone-500 font-medium block">IoT Telemetry Node</span>
+                  <div className="font-bold text-stone-900">Raspberry Pi 4B + ESP32</div>
+                  <span className="text-[10px] text-stone-400 block">Channel ID: #3474082</span>
+                </div>
+              </div>
+
+              {/* Fast Action Buttons for Merchant */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                <div className="flex items-center gap-2 text-xs text-stone-600">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <span>APMC Electronic Gate Pass Issued • Verified by Cold Shield AI</span>
+                </div>
+
+                <div className="flex gap-2.5">
+                  <a
+                    href={`tel:${driverPhone.replace(/\s+/g, '')}`}
+                    className="px-4 py-2.5 rounded-full bg-stone-900 hover:bg-black text-white text-xs font-bold transition-all flex items-center gap-2 shadow-sm"
+                  >
+                    <PhoneCall className="w-3.5 h-3.5" />
+                    <span>Call Driver ({driverName})</span>
+                  </a>
+                  <button
+                    onClick={() => {
+                      sound.playClick();
+                      alert('APMC Commercial Consignment Passport #JRN-2048 verified & downloaded.');
+                    }}
+                    className="px-4 py-2.5 rounded-full bg-[#166534] hover:bg-[#15803d] text-white text-xs font-bold transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>Download APMC Passport</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
           </div>
         )}
 
