@@ -70,15 +70,19 @@
 ```mermaid
 graph TB
     subgraph HARDWARE["🔧 Physical Hardware Layer"]
-        ESP32["ESP32 Microcontroller"]
-        DHT11["DHT11 Temp+Humidity Sensor"]
-        NEO6M["NEO-6M GPS Module"]
-        RELAY["5V Relay (Compressor Control)"]
-        CAM["ESP32-CAM / RPi Camera"]
+        ESP32["ESP32 DevKit V1\nWiFi Microcontroller"]
+        DHT11["DHT11 Sensor\nTemp + Humidity"]
+        NEO6M["NEO-6M GPS Module\nCeramic Patch Antenna"]
+        RELAY["5V Relay Module\nCompressor Control"]
+        CAM["ESP32-CAM\nLeaf Image Capture"]
+        RPI["Raspberry Pi 4B\nAI Edge Controller"]
+        GSM["SIM800L GSM Hat\nFarmer Voice Calls"]
         ESP32 --- DHT11
         ESP32 --- NEO6M
         ESP32 --- RELAY
         ESP32 --- CAM
+        RPI --- GSM
+        RPI --- ESP32
     end
 
     subgraph CLOUD["☁️ Cloud API Layer"]
@@ -89,7 +93,13 @@ graph TB
         DGOV["data.gov.in\n(Live Mandi Prices)"]
     end
 
-    subgraph SERVICES["⚙️ Service Layer (5 Services)"]
+    subgraph RPI_SERVICES["🍓 Raspberry Pi On-Device Services"]
+        RPI_VOICE["Voice IVR Server\n(gTTS + GSM Telephony)"]
+        RPI_AI["AI Compressor Controller\n(Thermal Flux Monitor)"]
+        RPI_RELAY["PWM Relay Driver\n(Cooling Signal TX)"]
+    end
+
+    subgraph SERVICES["⚙️ Next.js Service Layer (5 Services)"]
         S_TS["thingspeak.ts\nIoT Data Fetcher"]
         S_CD["cropDoctor.ts\nGemini Pathology Engine"]
         S_RP["routePlanner.ts\nAgricultural Route Planner"]
@@ -126,6 +136,15 @@ graph TB
     ESP32 -->|"HTTP POST every 15s"| TS
     CAM -->|"Base64 JPEG Upload"| GEMINI
 
+    %% Raspberry Pi connections
+    RPI -->|"Polls ThingSpeak"| TS
+    RPI_AI -->|"PWM Signal"| RELAY
+    RPI_VOICE -->|"gTTS Telugu/Hindi/English"| GSM
+    RPI --> RPI_VOICE
+    RPI --> RPI_AI
+    RPI --> RPI_RELAY
+    RPI_RELAY --> RELAY
+
     %% Cloud → Services
     TS -->|"REST JSON Feeds"| S_TS
     GEMINI -->|"Multimodal Inference"| S_CD
@@ -160,6 +179,7 @@ graph TB
 
     style HARDWARE fill:#1a1a2e,stroke:#e94560,color:#fff
     style CLOUD fill:#0f3460,stroke:#16c79a,color:#fff
+    style RPI_SERVICES fill:#831843,stroke:#f472b6,color:#fff
     style SERVICES fill:#162447,stroke:#e8d21d,color:#fff
     style COMPONENTS fill:#1b1b2f,stroke:#a855f7,color:#fff
     style VIEWS fill:#11273a,stroke:#22c55e,color:#fff
@@ -175,25 +195,35 @@ graph TB
 sequenceDiagram
     participant HW as 🔧 ESP32 + DHT11
     participant TS as ☁️ ThingSpeak
+    participant RPI as 🍓 Raspberry Pi 4B
     participant APP as 🖥️ Next.js App
     participant FARMER as 👨‍🌾 Farmer Screen
-    participant VOICE as 🔊 Voice TTS
+    participant PHONE as 📞 Farmer Phone (GSM)
 
     HW->>TS: POST temp=4.2°C, humidity=68%, GPS=15.82°N
     Note over TS: Channel #3474082 stores feed
     TS->>APP: GET /feeds/last.json (polled every 15s)
+    TS->>RPI: RPi also polls ThingSpeak every 2s
     APP->>APP: Parse → Update React state
     APP->>FARMER: Render 4 telemetry tiles
     
     alt Temperature > 8.0°C
         APP->>APP: 🔴 HEAT ALERT triggered
-        APP->>HW: Transmit cooling PWM signal
-        APP->>VOICE: Speak Telugu warning
-        VOICE->>FARMER: "మీ టమోటాలు ప్రమాదంలో ఉన్నాయి!"
+        RPI->>RPI: AI detects thermal drift
+        RPI->>HW: Transmit PWM cooling signal to ESP32 relay
         HW->>HW: Activate compressor relay
+        RPI->>PHONE: GSM call to farmer via SIM800L
+        Note over RPI,PHONE: gTTS speaks Telugu warning
+        PHONE->>FARMER: "మీ టమోటాలు ప్రమాదంలో ఉన్నాయి!"
         HW->>TS: POST temp=4.2°C (restored)
         APP->>APP: 🟢 Safe corridor restored
     end
+
+    Note over FARMER,PHONE: Farmer can also CALL 1800-COLD-FARM
+    FARMER->>PHONE: Dials toll-free hotline
+    PHONE->>RPI: GSM hat receives incoming call
+    RPI->>TS: Fetch latest telemetry
+    RPI->>PHONE: Speaks live status in Telugu/Hindi/English
 ```
 
 ---
@@ -295,7 +325,10 @@ graph LR
 cold-shield/
 ├── 📁 public/
 │   ├── 📁 frames/            # Pre-rendered WebP scrollytelling frames (500+)
-│   ├── 📁 hardware/          # ESP32, DHT11, NEO-6M hardware photos
+│   ├── 📁 hardware/          # 🔧 Embedded firmware & device scripts
+│   │   ├── esp32_dht11_thingspeak.ino         # ESP32 basic temp+humidity uploader
+│   │   ├── esp32_gps_dht11_thingspeak.ino     # ESP32 + NEO-6M GPS + DHT11 full node
+│   │   └── raspberry_pi_voice_ivr_server.py   # 🍓 RPi farmer voice IVR gateway
 │   ├── 📁 media/             # Background video (dashboard_loop.mp4)
 │   └── 📁 samples/           # AI Crop Doctor test images
 │
@@ -409,12 +442,56 @@ cold-shield/
 
 | Component | Model | Role |
 |---|---|---|
-| Microcontroller | **ESP32 DevKit V1** | Central IoT brain — WiFi, GPIO, ADC |
-| Temperature Sensor | **DHT11** | Measures cold box internal temperature (0–50°C) |
-| GPS Module | **NEO-6M** | Real-time latitude/longitude for transit tracking |
-| Relay Module | **5V Single-Channel** | Controls reefer compressor ON/OFF via PWM |
-| Camera | **ESP32-CAM / Raspberry Pi** | Captures leaf images for AI crop diagnosis |
+| **Edge AI Controller** | **Raspberry Pi 4B (4GB)** | 🧠 Central brain — runs AI compressor controller, voice IVR telephony server, and thermal flux monitoring every 2 seconds |
+| Microcontroller | **ESP32 DevKit V1** | WiFi-enabled sensor node — reads DHT11, NEO-6M, and transmits to ThingSpeak |
+| Temperature Sensor | **DHT11** | Measures cold box internal temperature (0–50°C, ±2°C accuracy) |
+| GPS Module | **NEO-6M (GY-GPSV3-NEO)** | Real-time lat/lon via ceramic patch antenna for transit tracking |
+| GSM Telephony Hat | **SIM800L / SIM7600** | Mounted on Raspberry Pi — receives/makes farmer voice calls via cellular |
+| Relay Module | **5V Single-Channel** | RPi GPIO → relay → reefer compressor ON/OFF via PWM |
+| Camera | **ESP32-CAM** | Captures leaf images for AI crop diagnosis |
 | Cloud Bridge | **ThingSpeak (Channel #3474082)** | Receives HTTP POST from ESP32 every 15 seconds |
+
+---
+
+## 🍓 Raspberry Pi — The AI Edge Brain
+
+> The Raspberry Pi 4B sits at the heart of the Cold Shield system. It is **not** just a sensor reader — it is the **autonomous decision-making AI controller** that protects the farmer's produce.
+
+### What the Raspberry Pi Does:
+
+| # | Role | Details |
+|---|---|---|
+| 1 | **AI Compressor Controller** | Monitors ThingSpeak thermal data every **2 seconds**. If cargo temperature exceeds 8.0°C, it autonomously sends PWM signals through GPIO → Relay → Compressor to restore safe 4.2°C without any human intervention. |
+| 2 | **Farmer Voice IVR Gateway** | Runs `raspberry_pi_voice_ivr_server.py` — a Python telephony server connected to a **SIM800L GSM hat**. When a farmer dials **1800-COLD-FARM**, the Pi answers the call, fetches live ThingSpeak telemetry, and speaks the status aloud using **gTTS** in **Telugu, Hindi, or English**. |
+| 3 | **Autonomous Thermal Regulation** | Dynamically modulates compressor relay pulse width based on real-time thermal flux — not a simple ON/OFF, but intelligent proportional cooling. |
+| 4 | **Edge Intelligence** | Processes sensor data locally on the Pi without requiring cloud round-trips — ensuring sub-second response times even in areas with poor connectivity. |
+
+### Raspberry Pi Wiring:
+
+```
+┌──────────────────────────────────────────────┐
+│              RASPBERRY PI 4B                 │
+│                                              │
+│   GPIO 17 ────────── 5V Relay ── Compressor  │
+│   GPIO 18 ────────── Status LED (Green/Red)  │
+│   UART TX/RX ─────── SIM800L GSM Hat         │
+│   USB ────────────── ESP32 (Serial Monitor)  │
+│   WiFi ───────────── ThingSpeak Cloud API    │
+│                                              │
+│   Python Services:                           │
+│   ├── raspberry_pi_voice_ivr_server.py       │
+│   ├── AI thermal flux controller (daemon)    │
+│   └── gTTS Telugu/Hindi/English synthesis    │
+└──────────────────────────────────────────────┘
+```
+
+### Firmware Files (in `public/hardware/`):
+
+| File | Device | Description |
+|---|---|---|
+| `esp32_dht11_thingspeak.ino` | ESP32 | Basic temperature + humidity upload to ThingSpeak |
+| `esp32_gps_dht11_thingspeak.ino` | ESP32 + NEO-6M | Full sensor node with GPS, temp, humidity, speed — uploads 6 fields every 15s |
+| `raspberry_pi_voice_ivr_server.py` | Raspberry Pi 4B | Farmer voice IVR telephony gateway — gTTS + GSM call answering in Telugu, Hindi, English |
 
 ---
 
