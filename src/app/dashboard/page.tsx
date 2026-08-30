@@ -154,10 +154,52 @@ export default function ComprehensiveAgriculturalDashboard() {
 
   // Fetch route on mount
   useEffect(() => {
-    planAgriculturalRoute('Anantapur', 'Kurnool')
+    planAgriculturalRoute('Madanapalle', 'Bengaluru')
       .then((r) => setRouteData(r.route))
       .catch(() => {});
   }, []);
+
+  // Real-time End-to-End Edge Hub Telemetry Poller (Pi 10.188.198.131:5000 + ThingSpeak Fallback)
+  useEffect(() => {
+    const pollPiTelemetry = async () => {
+      try {
+        const res = await fetch('http://10.188.198.131:5000/telemetry', { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.temp !== undefined && data.temp !== null) {
+            setLiveTemp(Number(data.temp));
+            if (data.temp > 8.0) {
+              setBoxThermalState('HOT_WARNING');
+              setSignalStatus(`⚠️ THERMAL ALERT: Container at ${data.temp}°C (Above 8.0°C Threshold)`);
+            } else if (boxThermalState !== 'COOLING_ACTIVE') {
+              setBoxThermalState('SAFE_COLD');
+              setSignalStatus(`🟢 LIVE PROBE: ${data.temp}°C • Humidity: ${data.humidity}% (Optimal)`);
+            }
+          }
+          if (data.humidity !== undefined) {
+            setLiveHum(Number(data.humidity));
+          }
+          if (data.speed !== undefined) {
+            setLiveSpeed(Number(data.speed));
+          }
+          return;
+        }
+      } catch {
+        // Fallback to ThingSpeak API
+        try {
+          const ts = await fetchThingSpeakData();
+          if (ts.currentTemp !== null) {
+            setLiveTemp(ts.currentTemp);
+            if (ts.currentHum !== null) setLiveHum(ts.currentHum);
+          }
+        } catch {}
+      }
+    };
+
+    pollPiTelemetry();
+    const interval = setInterval(pollPiTelemetry, 3000);
+    return () => clearInterval(interval);
+  }, [boxThermalState]);
 
   // -------------------------------------------------------------
   // INTERACTIVE DEMO: INJECT HEAT (TURNS TO VIVID RED WARNING)
