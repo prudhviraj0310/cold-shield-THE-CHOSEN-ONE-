@@ -24,14 +24,20 @@ sudo apt-get upgrade -y
 
 # 2. Install Python packages
 echo "[2/7] 🐍 Installing Python dependencies..."
-sudo apt-get install -y python3-pip python3-venv python3-serial python3-pil gpsd gpsd-clients python3-gps libgpiod2
+sudo apt-get install -y python3-pip python3-venv python3-serial python3-pil gpsd gpsd-clients python3-gps libgpiod2 python3-opencv
 
 # Create virtual environment
 python3 -m venv /home/$(whoami)/coldshield_env --system-site-packages
 source /home/$(whoami)/coldshield_env/bin/activate
 
+# Core sensor libraries
 pip3 install --break-system-packages adafruit-circuitpython-dht gTTS requests pynmea2 picamera2 2>/dev/null || \
 pip3 install adafruit-circuitpython-dht gTTS requests pynmea2 picamera2 2>/dev/null || true
+
+# Driver safety monitoring (drowsiness + rash driving)
+echo "[2b/7] 🚛 Installing Driver Safety AI libraries..."
+pip3 install --break-system-packages mediapipe opencv-python-headless numpy 2>/dev/null || \
+pip3 install mediapipe opencv-python-headless numpy 2>/dev/null || true
 
 # 3. Enable interfaces
 echo "[3/7] 🔧 Enabling Serial (UART) for GPS & Camera..."
@@ -62,7 +68,9 @@ echo "[5/7] 📋 Installing Cold Shield main service script..."
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 sudo mkdir -p /opt/coldshield
 sudo cp "${SCRIPT_DIR}/coldshield_node.py" /opt/coldshield/coldshield_node.py
+sudo cp "${SCRIPT_DIR}/driver_safety_monitor.py" /opt/coldshield/driver_safety_monitor.py 2>/dev/null || true
 sudo chmod +x /opt/coldshield/coldshield_node.py
+sudo chmod +x /opt/coldshield/driver_safety_monitor.py 2>/dev/null || true
 
 # 6. Create systemd service (auto-start on boot)
 echo "[6/7] ⚙️ Creating systemd auto-start service..."
@@ -85,9 +93,31 @@ Environment=PYTHONUNBUFFERED=1
 WantedBy=multi-user.target
 EOF
 
+# Driver Safety Monitor service
+cat <<EOF | sudo tee /etc/systemd/system/coldshield-driver.service
+[Unit]
+Description=Cold Shield Driver Safety Monitor (Drowsiness + Rash Driving)
+After=network-online.target coldshield.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=$(whoami)
+WorkingDirectory=/opt/coldshield
+ExecStart=/usr/bin/python3 /opt/coldshield/driver_safety_monitor.py
+Restart=always
+RestartSec=10
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
 sudo systemctl daemon-reload
 sudo systemctl enable coldshield.service
+sudo systemctl enable coldshield-driver.service
 sudo systemctl start coldshield.service || true
+sudo systemctl start coldshield-driver.service || true
 
 # 7. Done
 echo ""
