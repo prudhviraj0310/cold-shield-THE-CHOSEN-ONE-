@@ -443,19 +443,6 @@ export default function ComprehensiveAgriculturalDashboard() {
       <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 py-6 space-y-8">
 
         {/* ======================================================== */}
-        {/* PHYSICAL DEMO CONTAINER BOX — LIVE CAMERA + GEMINI VISION */}
-        {/* ======================================================== */}
-        <LiveContainerVisionDemo
-          liveTemp={liveTemp}
-          isHot={isHot}
-          isCooling={isCooling}
-          coolingProgress={coolingProgress}
-          onInjectHeat={handleInjectHeat}
-          onSendCoolingSignal={handleSendCoolingSignal}
-          onSetTemperature={(t) => setLiveTemp(t)}
-        />
-
-        {/* ======================================================== */}
         {/* PROMINENT INTERACTIVE TAB NAVIGATION BAR                  */}
         {/* ======================================================== */}
         <div className="flex items-center justify-start sm:justify-center overflow-x-auto gap-2 p-2 rounded-2xl bg-black/40 backdrop-blur-xl border border-white/20 shadow-xl scrollbar-none">
@@ -503,6 +490,17 @@ export default function ComprehensiveAgriculturalDashboard() {
         {activeTab === 'Farmer' && (
           <div className="space-y-8">
             
+            {/* PHYSICAL DEMO CONTAINER BOX — LIVE CAMERA + GEMINI VISION */}
+            <LiveContainerVisionDemo
+              liveTemp={liveTemp}
+              isHot={isHot}
+              isCooling={isCooling}
+              coolingProgress={coolingProgress}
+              onInjectHeat={handleInjectHeat}
+              onSendCoolingSignal={handleSendCoolingSignal}
+              onSetTemperature={(t) => setLiveTemp(t)}
+            />
+
             {/* 4 3D EXPANDABLE INTERACTIVE TILES */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 items-start">
               
