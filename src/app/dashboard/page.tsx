@@ -159,21 +159,24 @@ export default function ComprehensiveAgriculturalDashboard() {
       .catch(() => {});
   }, []);
 
-  // Real-time End-to-End Edge Hub Telemetry Poller (Pi 10.188.198.131:5000 + ThingSpeak Fallback)
+  // Real-time End-to-End Edge Hub Telemetry Poller (Server-side proxy: Pi + ThingSpeak)
   useEffect(() => {
-    const pollPiTelemetry = async () => {
+    const pollLiveTelemetry = async () => {
       try {
-        const res = await fetch('http://10.188.198.131:5000/telemetry', { cache: 'no-store' });
+        const res = await fetch('/api/iot/telemetry', { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
           if (data.temp !== undefined && data.temp !== null) {
-            setLiveTemp(Number(data.temp));
-            if (data.temp > 8.0) {
-              setBoxThermalState('HOT_WARNING');
-              setSignalStatus(`⚠️ THERMAL ALERT: Container at ${data.temp}°C (Above 8.0°C Threshold)`);
-            } else if (boxThermalState !== 'COOLING_ACTIVE') {
-              setBoxThermalState('SAFE_COLD');
-              setSignalStatus(`🟢 LIVE PROBE: ${data.temp}°C • Humidity: ${data.humidity}% (Optimal)`);
+            // Only update if not in manual cooling demo mode
+            if (boxThermalState !== 'COOLING_ACTIVE') {
+              setLiveTemp(Number(data.temp));
+              if (data.temp > 8.0) {
+                setBoxThermalState('HOT_WARNING');
+                setSignalStatus(`⚠️ THERMAL ALERT: Container at ${data.temp}°C (Above 8.0°C Threshold)`);
+              } else {
+                setBoxThermalState('SAFE_COLD');
+                setSignalStatus(`🟢 LIVE SENSOR: ${data.temp}°C • Humidity: ${data.humidity}% • Source: ${data.source || 'IoT'}`);
+              }
             }
           }
           if (data.humidity !== undefined) {
@@ -182,22 +185,14 @@ export default function ComprehensiveAgriculturalDashboard() {
           if (data.speed !== undefined) {
             setLiveSpeed(Number(data.speed));
           }
-          return;
         }
       } catch {
-        // Fallback to ThingSpeak API
-        try {
-          const ts = await fetchThingSpeakData();
-          if (ts.currentTemp !== null) {
-            setLiveTemp(ts.currentTemp);
-            if (ts.currentHum !== null) setLiveHum(ts.currentHum);
-          }
-        } catch {}
+        // Silent fallback — API route handles all retries internally
       }
     };
 
-    pollPiTelemetry();
-    const interval = setInterval(pollPiTelemetry, 3000);
+    pollLiveTelemetry();
+    const interval = setInterval(pollLiveTelemetry, 3000);
     return () => clearInterval(interval);
   }, [boxThermalState]);
 
