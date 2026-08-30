@@ -28,12 +28,12 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="w-full bg-[#164e28] text-white font-sans">
+    <footer className="w-full bg-transparent text-white font-sans">
       
       {/* ========================================================== */}
       {/* ORGANIC TREE/HILL SILHOUETTE SVG DIVIDER                   */}
       {/* ========================================================== */}
-      <div className="w-full overflow-hidden leading-none bg-[#050805]">
+      <div className="w-full overflow-hidden leading-none bg-transparent">
         <svg
           viewBox="0 0 1440 120"
           fill="none"
