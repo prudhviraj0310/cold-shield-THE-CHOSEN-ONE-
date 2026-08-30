@@ -70,6 +70,7 @@ import { ColdStorageIntelligence } from '@/components/ColdStorageIntelligence';
 import { LiveMandiBoard } from '@/components/LiveMandiBoard';
 import { InteractiveFeaturePhone } from '@/components/InteractiveFeaturePhone';
 import { InteractiveHighwayMap } from '@/components/InteractiveHighwayMap';
+import { LiveContainerVisionDemo } from '@/components/LiveContainerVisionDemo';
 import { Footer } from '@/components/Footer';
 
 const SAMPLE_LEAF_IMAGES = [
@@ -400,99 +401,17 @@ export default function ComprehensiveAgriculturalDashboard() {
       <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 py-6 space-y-8">
 
         {/* ======================================================== */}
-        {/* PHYSICAL DEMO BOX HERO CARD (CALM GREEN ➔ VIVID RED)     */}
+        {/* PHYSICAL DEMO CONTAINER BOX — LIVE CAMERA + GEMINI VISION */}
         {/* ======================================================== */}
-        <div className={`p-6 sm:p-8 rounded-3xl border-2 transition-all duration-700 shadow-2xl backdrop-blur-xl ${
-          isHot
-            ? 'bg-red-950/85 text-white border-red-500/80 shadow-red-500/30'
-            : isCooling
-            ? 'bg-teal-950/85 text-white border-cyan-400/80 shadow-teal-500/30'
-            : 'bg-emerald-950/85 text-white border-emerald-500/70 shadow-emerald-950/30'
-        }`}>
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-            
-            <div className="flex items-center gap-5">
-              <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-4xl shadow-inner transition-all duration-500 ${
-                isHot ? 'bg-red-700/80 animate-pulse ring-4 ring-white/40' : isCooling ? 'bg-teal-900/80 ring-4 ring-cyan-300/40' : 'bg-emerald-900/80'
-              }`}>
-                🍅
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-white/20 text-white backdrop-blur-xs">
-                    Live Demo Box Probe
-                  </span>
-                  <span className="text-xs font-mono opacity-85">ESP32 + DHT11 Probe Link</span>
-                </div>
-
-                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight mt-1 text-white">
-                  {isHot ? 'Thermal Drift: Box Heating Detected (8.6°C)!' : isCooling ? 'Compressor Active: Cooling Tomato...' : 'Cold Box: 4.2°C Safe & Protected'}
-                </h2>
-
-                <p className="text-xs opacity-90 font-mono mt-1 flex items-center gap-2 text-white/90">
-                  <span>{signalStatus}</span>
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
-              <div className="p-4 rounded-2xl bg-black/60 backdrop-blur-md border border-white/20 text-center min-w-[130px]">
-                <span className="text-[10px] font-mono uppercase tracking-widest block text-white/75">Inside Box</span>
-                <div className="text-4xl font-extrabold font-mono tracking-tight my-0.5 text-white">
-                  {liveTemp.toFixed(1)}°C
-                </div>
-                <span className="text-[10px] font-bold block text-white/90">
-                  {isHot ? '⚠️ EXCEEDS 8.0°C' : isCooling ? '❄️ COOLING DOWN' : '✅ SAFE CORRIDOR'}
-                </span>
-              </div>
-
-              <div className="flex flex-col gap-2 flex-1 sm:flex-none">
-                <button
-                  onClick={handleInjectHeat}
-                  className={`px-4 py-2.5 rounded-xl font-bold text-xs transition-all shadow-sm cursor-pointer flex items-center justify-center gap-2 ${
-                    isHot
-                      ? 'bg-white text-red-700 shadow-md ring-2 ring-white font-extrabold'
-                      : 'bg-white/20 hover:bg-white/30 text-white border border-white/30'
-                  }`}
-                >
-                  <Flame className="w-4 h-4" />
-                  <span>1. Simulate Heat In Box (8.6°C)</span>
-                </button>
-
-                <button
-                  onClick={handleSendCoolingSignal}
-                  className={`px-5 py-3 rounded-xl font-extrabold text-xs transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 ${
-                    isHot
-                      ? 'bg-[#bef264] hover:bg-[#a3e635] text-black ring-4 ring-lime-300 animate-pulse font-extrabold'
-                      : isCooling
-                      ? 'bg-cyan-300 text-teal-950 font-bold'
-                      : 'bg-[#bef264] hover:bg-[#a3e635] text-black font-extrabold'
-                  }`}
-                >
-                  <Snowflake className={`w-4 h-4 ${isCooling ? 'animate-spin' : ''}`} />
-                  <span>2. Transmit Cooling Signal (Turn Cold)</span>
-                </button>
-              </div>
-            </div>
-
-          </div>
-
-          {isCooling && (
-            <div className="mt-6 pt-4 border-t border-white/20 space-y-1.5">
-              <div className="flex justify-between text-xs font-mono font-bold text-white">
-                <span>REFRIGERATION POWER CYCLE:</span>
-                <span>{coolingProgress}% COMPLETED (TARGET 4.2°C)</span>
-              </div>
-              <div className="w-full h-2.5 rounded-full bg-white/20 overflow-hidden">
-                <div
-                  className="bg-cyan-300 h-full transition-all duration-1000 ease-out"
-                  style={{ width: `${coolingProgress}%` }}
-                />
-              </div>
-            </div>
-          )}
-        </div>
+        <LiveContainerVisionDemo
+          liveTemp={liveTemp}
+          isHot={isHot}
+          isCooling={isCooling}
+          coolingProgress={coolingProgress}
+          onInjectHeat={handleInjectHeat}
+          onSendCoolingSignal={handleSendCoolingSignal}
+          onSetTemperature={(t) => setLiveTemp(t)}
+        />
 
         {/* ======================================================== */}
         {/* VIEW: DEDICATED MANDI INFORMATION VIEW                  */}
