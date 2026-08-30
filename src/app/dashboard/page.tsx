@@ -69,6 +69,7 @@ import {
 import { ColdStorageIntelligence } from '@/components/ColdStorageIntelligence';
 import { LiveMandiBoard } from '@/components/LiveMandiBoard';
 import { InteractiveFeaturePhone } from '@/components/InteractiveFeaturePhone';
+import { InteractiveHighwayMap } from '@/components/InteractiveHighwayMap';
 import { Footer } from '@/components/Footer';
 
 const SAMPLE_LEAF_IMAGES = [
@@ -1134,21 +1135,15 @@ export default function ComprehensiveAgriculturalDashboard() {
 
             {/* Live Navigation Map + 3D Location Map */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              <div className="lg:col-span-8 p-6 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg space-y-3">
-                <div className="flex items-center justify-between text-xs font-semibold">
-                  <span className="text-stone-900">HIGHWAY ROUTE: ANANTAPUR ➔ KURNOOL APMC MANDI</span>
-                  <span className="text-emerald-700 font-bold">{liveDistance} km Traveled</span>
-                </div>
-                {routeData?.mapEmbedUrl && (
-                  <iframe
-                    src={routeData.mapEmbedUrl}
-                    width="100%"
-                    height="380"
-                    className="rounded-xl border border-stone-200"
-                    loading="lazy"
-                    title="Driver Map"
-                  />
-                )}
+              <div className="lg:col-span-8 space-y-3">
+                <InteractiveHighwayMap
+                  currentSpeed={liveSpeed}
+                  distanceKm={liveDistance}
+                  totalDistanceKm={180}
+                  originName="Anantapur Farm Hub"
+                  destName="Kurnool APMC Wholesale Mandi"
+                  coordinates="15.8281° N, 78.0373° E"
+                />
               </div>
 
               <div className="lg:col-span-4 p-6 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg flex flex-col items-center justify-center text-center space-y-4">
