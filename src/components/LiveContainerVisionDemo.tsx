@@ -175,6 +175,17 @@ export const LiveContainerVisionDemo: React.FC<LiveContainerVisionDemoProps> = (
     }
   };
 
+  const getItemIcon = (name?: string) => {
+    if (!name) return '🥫';
+    const lower = name.toLowerCase();
+    if (lower.includes('tomato')) return '🍅';
+    if (lower.includes('drink') || lower.includes('can') || lower.includes('coke') || lower.includes('pepsi') || lower.includes('beverage')) return '🥫';
+    if (lower.includes('milk') || lower.includes('dairy') || lower.includes('bottle')) return '🥛';
+    if (lower.includes('mango')) return '🥭';
+    if (lower.includes('chilli')) return '🌶️';
+    return '🧊';
+  };
+
   return (
     <div
       className={`p-6 sm:p-8 rounded-3xl border-2 transition-all duration-700 shadow-2xl backdrop-blur-xl space-y-6 ${
@@ -197,7 +208,7 @@ export const LiveContainerVisionDemo: React.FC<LiveContainerVisionDemoProps> = (
                 : 'bg-emerald-900/80'
             }`}
           >
-            {result?.crop_name.toLowerCase().includes('tomato') ? '🍅' : '🍅'}
+            {getItemIcon(result?.crop_name)}
           </div>
 
           <div>
@@ -206,21 +217,21 @@ export const LiveContainerVisionDemo: React.FC<LiveContainerVisionDemoProps> = (
                 <span className="w-2 h-2 rounded-full bg-[#bef264] animate-ping" />
                 Live Demo Container Box
               </span>
-              <span className="text-xs font-mono opacity-85">Raspberry Pi + Camera + DHT11 + Peltier Cooler</span>
+              <span className="text-xs font-mono opacity-85">Raspberry Pi + Camera + DHT11 + Auto-Actuator</span>
             </div>
 
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight mt-1 text-white">
               {isHot
-                ? '⚠️ Thermal Drift Detected: Box Heating (8.6°C)!'
+                ? `⚠️ Thermal Drift Detected: Box Warming to ${liveTemp.toFixed(1)}°C! Auto-Cooling...`
                 : isCooling
-                ? '❄️ Gemini Auto-Cooling: Stabilizing Container to 4.2°C...'
+                ? `❄️ AI Counter-Cooling: Restoring Container to ${result?.target_temperature || 4.0}°C...`
                 : result
                 ? `Container Ready: ${result.crop_name} (${liveTemp.toFixed(1)}°C)`
-                : 'Container Ready: Place Tomato & Scan with Gemini AI'}
+                : 'Container Ready: Place Cold Drink / Item & Scan with Gemini AI'}
             </h2>
 
             <p className="text-xs text-white/80 font-mono mt-0.5">
-              Live Camera ➔ Gemini Vision Identification ➔ Autonomous Temperature Trigger
+              Live Camera ➔ Gemini Identifies Cold Item ➔ Automatic Temperature Target &amp; Thermal Protection
             </p>
           </div>
         </div>
@@ -244,7 +255,7 @@ export const LiveContainerVisionDemo: React.FC<LiveContainerVisionDemoProps> = (
               className="px-5 py-3 rounded-xl font-extrabold text-xs transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 bg-[#bef264] hover:bg-[#a3e635] text-stone-950 ring-2 ring-lime-300"
             >
               <Sparkles className={`w-4 h-4 ${scanning ? 'animate-spin' : ''}`} />
-              <span>{scanning ? 'Gemini AI Scanning Produce...' : '▶️ Scan Live Box with Gemini AI'}</span>
+              <span>{scanning ? 'Gemini AI Scanning Item...' : '▶️ Scan Live Box with Gemini AI'}</span>
             </button>
 
             <div className="flex gap-2">
@@ -257,15 +268,15 @@ export const LiveContainerVisionDemo: React.FC<LiveContainerVisionDemoProps> = (
                 }`}
               >
                 <Flame className="w-3.5 h-3.5" />
-                <span>Simulate Heat (8.6°C)</span>
+                <span>Simulate Heat Rise (8.6°C)</span>
               </button>
 
               <button
-                onClick={() => onSendCoolingSignal(4.2)}
+                onClick={() => onSendCoolingSignal(result?.target_temperature || 4.0)}
                 className="flex-1 px-3 py-2 rounded-xl font-bold text-xs bg-cyan-400 hover:bg-cyan-300 text-teal-950 transition-all cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <Snowflake className="w-3.5 h-3.5" />
-                <span>Cool (4.2°C)</span>
+                <span>Auto-Cool ({result?.target_temperature || 4.0}°C)</span>
               </button>
             </div>
           </div>
