@@ -68,6 +68,7 @@ import {
 } from '@/components/ui/expandable-telemetry-cards';
 import { ColdStorageIntelligence } from '@/components/ColdStorageIntelligence';
 import { LiveMandiBoard } from '@/components/LiveMandiBoard';
+import { InteractiveFeaturePhone } from '@/components/InteractiveFeaturePhone';
 import { Footer } from '@/components/Footer';
 
 const SAMPLE_LEAF_IMAGES = [
@@ -541,85 +542,16 @@ export default function ComprehensiveAgriculturalDashboard() {
 
             </div>
 
-            {/* WARM FARMER VOICE ASSISTANT CARD */}
-            <div className="p-6 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-lg space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-200">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#166534] text-white flex items-center justify-center shadow-xs">
-                    <Volume2 className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-stone-900">
-                      Farmer Voice Assistant (రైతు వాయిస్ అసిస్టెంట్)
-                    </h3>
-                    <p className="text-xs text-stone-500">
-                      Farmers don&apos;t need to read. Tap to hear real-time updates in your native language.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Language Picker */}
-                <div className="flex items-center gap-1 p-1 bg-stone-100 rounded-full text-xs font-semibold">
-                  <button
-                    onClick={() => setVoiceLang('te')}
-                    className={`px-4 py-1.5 rounded-full cursor-pointer transition-all ${
-                      voiceLang === 'te' ? 'bg-[#166534] text-white shadow-xs' : 'text-stone-600 hover:bg-stone-200'
-                    }`}
-                  >
-                    తెలుగు
-                  </button>
-                  <button
-                    onClick={() => setVoiceLang('hi')}
-                    className={`px-4 py-1.5 rounded-full cursor-pointer transition-all ${
-                      voiceLang === 'hi' ? 'bg-[#166534] text-white shadow-xs' : 'text-stone-600 hover:bg-stone-200'
-                    }`}
-                  >
-                    हिंदी
-                  </button>
-                  <button
-                    onClick={() => setVoiceLang('en')}
-                    className={`px-4 py-1.5 rounded-full cursor-pointer transition-all ${
-                      voiceLang === 'en' ? 'bg-[#166534] text-white shadow-xs' : 'text-stone-600 hover:bg-stone-200'
-                    }`}
-                  >
-                    English
-                  </button>
-                </div>
-              </div>
-
-              {/* Spoken Message & Action Button */}
-              <div className="p-4 rounded-xl bg-stone-50 border border-stone-200 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
-                <div className="space-y-1">
-                  <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-wide">
-                    Spoken Message Preview:
-                  </span>
-                  <p className="text-xs text-stone-800 leading-relaxed italic">
-                    &ldquo;{isHot
-                      ? CALL_SCENARIOS.TEMP_SPIKE_AUTONOMOUS_FIX.script[voiceLang === 'te' ? 'telugu' : voiceLang === 'hi' ? 'hindi' : 'english']
-                      : CALL_SCENARIOS.TRANSIT_SAFE.script[voiceLang === 'te' ? 'telugu' : voiceLang === 'hi' ? 'hindi' : 'english']
-                    }&rdquo;
-                  </p>
-                </div>
-
-                <div className="flex gap-2 shrink-0">
-                  <button
-                    onClick={() => handlePlayVoice(isHot ? 'TEMP_SPIKE_AUTONOMOUS_FIX' : 'TRANSIT_SAFE')}
-                    className="px-5 py-3 rounded-full bg-[#166534] hover:bg-[#15803d] text-white text-xs font-bold transition-all flex items-center gap-2 shadow-sm cursor-pointer"
-                  >
-                    <PhoneCall className={`w-4 h-4 ${isSpeaking ? 'animate-bounce' : ''}`} />
-                    <span>{isSpeaking ? 'Speaking Aloud...' : '▶ Listen in Voice'}</span>
-                  </button>
-
-                  {isSpeaking && (
-                    <button
-                      onClick={handleStopVoice}
-                      className="px-4 py-3 rounded-full bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs font-bold cursor-pointer"
-                    >
-                      Stop
-                    </button>
-                  )}
-                </div>
-              </div>
+            {/* TACTILE 2G FEATURE PHONE CALLING UNIT */}
+            <div className="w-full">
+              <InteractiveFeaturePhone
+                initialLanguage={voiceLang}
+                liveTemp={liveTemp}
+                liveSpeed={liveSpeed}
+                liveDistance={liveDistance}
+                isHot={isHot}
+                onLanguageChange={(l) => setVoiceLang(l)}
+              />
             </div>
 
             {/* DIRECT CONTACT NUMBERS & VEHICLE DETAILS */}
@@ -1233,84 +1165,18 @@ export default function ComprehensiveAgriculturalDashboard() {
         )}
 
         {/* ======================================================== */}
-        {/* VIEW 4: LIVE VOICE ASSISTANT DEMO                        */}
+        {/* VIEW 4: LIVE 2G FEATURE PHONE & IVR TELEPHONY GATEWAY    */}
         {/* ======================================================== */}
         {activeTab === 'Voice' && (
-          <div className="space-y-6 max-w-3xl mx-auto">
-            <div className="p-8 rounded-3xl bg-white/95 backdrop-blur-md border border-white/40 shadow-2xl text-center space-y-6">
-              <div className="w-18 h-18 rounded-full bg-emerald-50 border-2 border-[#166534] flex items-center justify-center mx-auto text-[#166534] shadow-sm">
-                <Mic className={`w-8 h-8 ${isSpeaking ? 'animate-pulse' : ''}`} />
-              </div>
-
-              <div>
-                <h3 className="text-xl font-bold text-stone-900">
-                  Toll-Free Voice Assistant (1800-COLD-FARM)
-                </h3>
-                <p className="text-xs text-stone-500 mt-1">
-                  Reassures rural farmers who cannot read by speaking live status in Telugu, Hindi, or English.
-                </p>
-              </div>
-
-              {/* Language Selector */}
-              <div className="inline-flex p-1 bg-stone-100 rounded-full text-xs font-semibold">
-                <button
-                  onClick={() => setVoiceLang('te')}
-                  className={`px-5 py-2 rounded-full cursor-pointer ${
-                    voiceLang === 'te' ? 'bg-[#166534] text-white shadow-xs' : 'text-stone-700'
-                  }`}
-                >
-                  తెలుగు (Telugu)
-                </button>
-                <button
-                  onClick={() => setVoiceLang('hi')}
-                  className={`px-5 py-2 rounded-full cursor-pointer ${
-                    voiceLang === 'hi' ? 'bg-[#166534] text-white shadow-xs' : 'text-stone-700'
-                  }`}
-                >
-                  हिंदी (Hindi)
-                </button>
-                <button
-                  onClick={() => setVoiceLang('en')}
-                  className={`px-5 py-2 rounded-full cursor-pointer ${
-                    voiceLang === 'en' ? 'bg-[#166534] text-white shadow-xs' : 'text-stone-700'
-                  }`}
-                >
-                  English
-                </button>
-              </div>
-
-              {/* Spoken Text */}
-              <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200 text-left space-y-2">
-                <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-wide">
-                  Live Spoken Message:
-                </span>
-                <p className="text-sm text-stone-800 leading-relaxed italic">
-                  &ldquo;{spokenText || (isHot
-                    ? CALL_SCENARIOS.TEMP_SPIKE_AUTONOMOUS_FIX.script[voiceLang === 'te' ? 'telugu' : voiceLang === 'hi' ? 'hindi' : 'english']
-                    : CALL_SCENARIOS.TRANSIT_SAFE.script[voiceLang === 'te' ? 'telugu' : voiceLang === 'hi' ? 'hindi' : 'english']
-                  )}&rdquo;
-                </p>
-              </div>
-
-              <div className="flex gap-3 justify-center">
-                <button
-                  onClick={() => handlePlayVoice(isHot ? 'TEMP_SPIKE_AUTONOMOUS_FIX' : 'TRANSIT_SAFE')}
-                  className="px-8 py-3.5 rounded-full bg-[#166534] hover:bg-[#15803d] text-white text-xs font-bold cursor-pointer transition-all shadow-md flex items-center gap-2"
-                >
-                  <PhoneCall className="w-4 h-4" />
-                  <span>{isSpeaking ? 'Speaking Message Aloud...' : '▶ Start Voice Call Demo'}</span>
-                </button>
-
-                {isSpeaking && (
-                  <button
-                    onClick={handleStopVoice}
-                    className="px-6 py-3.5 rounded-full bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs font-bold cursor-pointer"
-                  >
-                    Stop
-                  </button>
-                )}
-              </div>
-            </div>
+          <div className="w-full">
+            <InteractiveFeaturePhone
+              initialLanguage={voiceLang}
+              liveTemp={liveTemp}
+              liveSpeed={liveSpeed}
+              liveDistance={liveDistance}
+              isHot={isHot}
+              onLanguageChange={(l) => setVoiceLang(l)}
+            />
           </div>
         )}
 
