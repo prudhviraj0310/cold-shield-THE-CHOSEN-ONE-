@@ -142,8 +142,8 @@ Respond ONLY in valid JSON matching this schema (no markdown, no backticks, no c
     return FALLBACK_DIAGNOSES.default;
   }
 
-  // Try gemini-1.5-flash, fallback to gemini-2.5-flash if needed
-  const models = ['gemini-1.5-flash', 'gemini-2.5-flash', 'gemini-1.5-pro'];
+  // Try gemini-2.5-flash, fallback to gemini-flash-latest if needed
+  const models = ['gemini-2.5-flash', 'gemini-flash-latest', 'gemini-2.5-pro'];
 
   for (const model of models) {
     try {

@@ -15,10 +15,10 @@ export const API_CONFIG = {
     },
   },
 
-  // Google Gemini (Crop Doctor Disease Detection)
+  // Google Gemini (Crop Doctor & Container Vision)
   gemini: {
     apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || '',
-    model: 'gemini-1.5-flash',
+    model: 'gemini-2.5-flash',
     get baseUrl() {
       return `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent?key=${this.apiKey}`;
     },

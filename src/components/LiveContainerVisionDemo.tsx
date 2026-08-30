@@ -53,6 +53,9 @@ export const LiveContainerVisionDemo: React.FC<LiveContainerVisionDemoProps> = (
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
+  const [sourceMode, setSourceMode] = useState<'pi' | 'webcam'>('pi');
+  const [piUrl, setPiUrl] = useState<string>('http://10.188.198.131:5000');
+
   // Initialize camera
   const startCamera = async () => {
     try {
@@ -76,7 +79,7 @@ export const LiveContainerVisionDemo: React.FC<LiveContainerVisionDemoProps> = (
       setCameraActive(true);
     } catch (err: any) {
       console.warn('Camera access error:', err);
-      setCameraError('Camera access denied or unavailable. You can also upload a photo or use live demo trigger.');
+      setCameraError('Local webcam unavailable. Using Raspberry Pi USB Camera Stream.');
       setCameraActive(false);
     }
   };
@@ -90,11 +93,13 @@ export const LiveContainerVisionDemo: React.FC<LiveContainerVisionDemoProps> = (
   };
 
   useEffect(() => {
-    startCamera();
+    if (sourceMode === 'webcam') {
+      startCamera();
+    }
     return () => {
       stopCamera();
     };
-  }, []);
+  }, [sourceMode]);
 
   // Capture frame from video stream
   const captureFrame = (): string | null => {
@@ -282,13 +287,23 @@ export const LiveContainerVisionDemo: React.FC<LiveContainerVisionDemoProps> = (
               </span>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               <button
-                onClick={cameraActive ? stopCamera : startCamera}
-                className="px-2.5 py-1 rounded-lg bg-white/20 hover:bg-white/30 text-white text-[10px] font-mono cursor-pointer transition-all"
+                onClick={() => setSourceMode(sourceMode === 'pi' ? 'webcam' : 'pi')}
+                className={`px-2.5 py-1 rounded-lg text-[10px] font-mono cursor-pointer transition-all font-bold ${
+                  sourceMode === 'pi' ? 'bg-[#bef264] text-stone-950' : 'bg-white/20 text-white'
+                }`}
               >
-                {cameraActive ? 'Disable Cam' : 'Enable Cam'}
+                {sourceMode === 'pi' ? '🍓 Pi USB Cam (Active)' : '💻 Switch to Pi Cam'}
               </button>
+              {sourceMode === 'webcam' && (
+                <button
+                  onClick={cameraActive ? stopCamera : startCamera}
+                  className="px-2.5 py-1 rounded-lg bg-white/20 hover:bg-white/30 text-white text-[10px] font-mono cursor-pointer transition-all"
+                >
+                  {cameraActive ? 'Disable Cam' : 'Enable Cam'}
+                </button>
+              )}
               <button
                 onClick={() => fileInputRef.current?.click()}
                 className="px-2.5 py-1 rounded-lg bg-white/20 hover:bg-white/30 text-white text-[10px] font-mono cursor-pointer transition-all flex items-center gap-1"
@@ -301,8 +316,18 @@ export const LiveContainerVisionDemo: React.FC<LiveContainerVisionDemoProps> = (
           </div>
 
           {/* Video or Captured Frame */}
-          <div className="relative flex-1 w-full min-h-[220px] bg-stone-900 flex items-center justify-center overflow-hidden">
-            {cameraActive ? (
+          <div className="relative flex-1 w-full min-h-[240px] bg-stone-900 flex items-center justify-center overflow-hidden">
+            {sourceMode === 'pi' ? (
+              <img
+                src={`${piUrl}/stream.mjpg`}
+                alt="Pi Container Live Stream"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  // If Pi stream not started, show fallback
+                  (e.target as HTMLElement).style.display = 'none';
+                }}
+              />
+            ) : cameraActive ? (
               <video
                 ref={videoRef}
                 autoPlay
@@ -315,7 +340,7 @@ export const LiveContainerVisionDemo: React.FC<LiveContainerVisionDemoProps> = (
             ) : (
               <div className="p-6 text-center space-y-2 text-white/70">
                 <Camera className="w-10 h-10 mx-auto text-white/50 animate-pulse" />
-                <p className="text-xs font-mono">Live Camera Starting... Point camera at tomato inside container.</p>
+                <p className="text-xs font-mono">Camera Ready. Point at produce in container.</p>
                 <button
                   onClick={startCamera}
                   className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold"
