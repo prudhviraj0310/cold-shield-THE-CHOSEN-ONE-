@@ -448,8 +448,8 @@ export default function ComprehensiveAgriculturalDashboard() {
 
               {/* Tile 3: 3D Expandable Real OpenStreetMap Highway Radar Card */}
               <RealLocationMapCard
-                location="Kurnool Highway (NH 44, KM 42)"
-                coordinates="15.8281° N, 78.0373° E"
+                location="Madanapalle Tomato APMC Hub (Annamayya Dist)"
+                coordinates="13.5560° N, 78.5010° E"
                 speed={liveSpeed}
                 distanceKm={liveDistance}
               />

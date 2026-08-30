@@ -14,20 +14,19 @@ export interface InteractiveHighwayMapProps {
 }
 
 export const InteractiveHighwayMap: React.FC<InteractiveHighwayMapProps> = ({
-  currentSpeed = 52.4,
-  distanceKm = 128.4,
-  totalDistanceKm = 180,
-  originName = 'Anantapur Farm Hub',
-  destName = 'Kurnool APMC Mandi Yard',
-  coordinates = '15.8281° N, 78.0373° E',
+  currentSpeed = 0.0,
+  distanceKm = 42.4,
+  totalDistanceKm = 140,
+  originName = 'Madanapalle Tomato APMC Yard (Asia Largest Mandi)',
+  destName = 'Bengaluru KR Market / Chennai Gateway',
+  coordinates = '13.5560° N, 78.5010° E',
 }) => {
   const [mapLayer, setMapLayer] = useState<'osm' | 'terrain' | 'hybrid'>('osm');
-  const [zoomLevel, setZoomLevel] = useState<number>(11);
+  const [zoomLevel, setZoomLevel] = useState<number>(12);
   const [isLiveTracking, setIsLiveTracking] = useState<boolean>(true);
 
-  // Kurnool - Dhone - Anantapur Bounding Box
-  // Lat: 14.68 to 15.85, Lon: 77.58 to 78.08
-  const osmEmbedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=77.50%2C14.65%2C78.18%2C15.88&layer=mapnik&marker=15.8281%2C78.0373`;
+  // Madanapalle Tomato APMC Market Yard Bounding Box (Lat: 13.5560, Lon: 78.5010)
+  const osmEmbedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=78.40%2C13.50%2C78.60%2C13.62&layer=mapnik&marker=13.5560%2C78.5010`;
 
   const remainingKm = Math.max(0, totalDistanceKm - distanceKm);
   const progressPct = Math.min(100, Math.round((distanceKm / totalDistanceKm) * 100));
